@@ -87,7 +87,7 @@ sqlCommands = [
     "WHERE",
 ]
 postgressURL = environ['DATABASE_URL']
-Client = discord.Bot(debug_guilds=[890890610339373106])
+Client = discord.Bot()
 
 
 def get_sql_commands(ctx: discord.AutocompleteContext):
