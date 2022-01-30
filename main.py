@@ -370,4 +370,4 @@ async def update(
     await ctx.respond("Done")
 
 
-Client.run(environ("TOKEN"))
+Client.run(environ["TOKEN"])
