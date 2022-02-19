@@ -1,3 +1,4 @@
-git+https://github.com/Pycord-Development/pycord
+py-cord==2.0.0b1
 requests
 psycopg[binary]
+markdownify
