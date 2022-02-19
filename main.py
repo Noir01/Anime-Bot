@@ -1,10 +1,10 @@
-#Formatted with Black, the uncompromising Python code formatter. https://github.com/psf/black
+# Formatted with Black, the uncompromising Python code formatter. https://github.com/psf/black
 from asyncio import sleep
 import discord
 from discord.commands import Option, permissions
 import psycopg
 from traceback import format_exc
-from os import environ
+from os import environ, listdir
 from requests import post
 
 sqlCommands = [
@@ -86,12 +86,8 @@ sqlCommands = [
     "VIEW",
     "WHERE",
 ]
-postgressURL = environ['DATABASE_URL']
+postgressURL = environ["DATABASE_URL"]
 Client = discord.Bot()
-
-
-def get_sql_commands(ctx: discord.AutocompleteContext):
-    return [command for command in sqlCommands if ctx.value.lower() in command.lower()]
 
 
 @Client.event
@@ -99,6 +95,10 @@ async def on_ready():
     print("Online now")
     global conn
     conn = psycopg.connect(postgressURL)
+
+
+def get_sql_commands(ctx: discord.AutocompleteContext):
+    return [command for command in sqlCommands if ctx.value.lower() in command.lower()]
 
 
 @Client.slash_command(
@@ -124,7 +124,7 @@ async def execute(
                 "psycopg.errors.ActiveSqlTransaction: CREATE DATABASE cannot run inside a transaction block"
             )
         except BaseException:
-            await ctx.respond(format_exc())
+            await ctx.respond(format_exc(), ephemeral=True)
 
 
 class LinkConfirm(discord.ui.View):
@@ -133,18 +133,12 @@ class LinkConfirm(discord.ui.View):
         self.value = None
         self.timeout = 300.0
 
-    @discord.ui.button(
-        emoji="<:AYes:765142287902441492>", style=discord.ButtonStyle.green
-    )
-    async def confirm(
-        self, button: discord.ui.Button, interaction: discord.Interaction
-    ):
+    @discord.ui.button(emoji="<:AYes:765142287902441492>", style=discord.ButtonStyle.green)
+    async def confirm(self, button: discord.ui.Button, interaction: discord.Interaction):
         self.value = True
         self.stop()
 
-    @discord.ui.button(
-        emoji="<:ANo:765142286681112576>", style=discord.ButtonStyle.danger
-    )
+    @discord.ui.button(emoji="<:ANo:765142286681112576>", style=discord.ButtonStyle.danger)
     async def cancel(self, button: discord.ui.Button, interaction: discord.Interaction):
         self.value = False
         self.stop()
@@ -160,9 +154,7 @@ class LinkConfirmDisabled(discord.ui.View):
         style=discord.ButtonStyle.green,
         disabled=True,
     )
-    async def confirm(
-        self, button: discord.ui.Button, interaction: discord.Interaction
-    ):
+    async def confirm(self, button: discord.ui.Button, interaction: discord.Interaction):
         pass
 
     @discord.ui.button(
@@ -175,9 +167,9 @@ class LinkConfirmDisabled(discord.ui.View):
 
 
 @Client.slash_command(
-    description="Used to link an Anilist profile to your Discord profile."
+    name="set", description="Used to link an Anilist profile to your Discord profile."
 )
-async def link(
+async def slashSet(
     ctx: discord.ApplicationContext,
     username: Option(str, "Username of the anilist account you want to link."),
 ):
@@ -221,17 +213,13 @@ query ($name: String, $page: Int, $perPage: Int) {
             await question.edit("Timed out.", view=disabledView)
         elif view.value:
             curr.execute(f"DELETE FROM discord_anilist WHERE discord={ctx.author.id}")
-            curr.execute(
-                f"INSERT INTO discord_anilist VALUES ({ctx.author.id}, {user['id']})"
-            )
+            curr.execute(f"INSERT INTO discord_anilist VALUES ({ctx.author.id}, {user['id']})")
             await question.edit(
                 f"Successfully registered [{user['name']}](https://anilist.co/user/{user['name']}).",
                 view=disabledView,
             )
         elif not view.value:
-            await question.edit(
-                "Please try again with your username.", view=disabledView
-            )
+            await question.edit("Please try again with your username.", view=disabledView)
     conn.commit()
 
 
@@ -239,9 +227,7 @@ query ($name: String, $page: Int, $perPage: Int) {
 async def update(
     ctx: discord.ApplicationContext,
     list: Option(str, "The list you want to update.", choices=["Anime", "Manga"]),
-    member: Option(
-        discord.Member, "The user you want to update. Defaults to you."
-    ) = None,
+    member: Option(discord.Member, "The user you want to update. Defaults to you.") = None,
     force: Option(bool, "Pass True to import your entire list.") = False,
 ):
     await ctx.defer()
@@ -369,5 +355,19 @@ async def update(
     conn.commit()
     await ctx.respond("Done")
 
+
+@Client.slash_command(description="Admin level command to reload cogs.")
+@permissions.is_user(629243339379834880)
+async def reload(
+    ctx: discord.ApplicationContext,
+    cog: Option(str, "Name of cog to unload", choices=["Anime", "Manga"]),
+):
+    Client.unload_extension("Cogs." + cog)
+    Client.load_extension("Cogs." + cog)
+
+
+for filename in listdir("./Cogs"):
+    if filename.endswith(".py"):
+        Client.load_extension(f"Cogs.{filename[:-3]}")
 
 Client.run(environ["TOKEN"])
