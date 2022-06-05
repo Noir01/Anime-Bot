@@ -1,4 +1,4 @@
-py-cord==2.0.0b1
+git+https://github.com/Rapptz/discord.py
 requests
-psycopg[binary]
+psycopg[binary, pool]
 markdownify
