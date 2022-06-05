@@ -6,7 +6,8 @@ import discord
 from discord.ext import commands
 from psycopg_pool import AsyncConnectionPool
 
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy()) #Postgres needs this to run on Windows
+# asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy()) 
+#Postgres needs this to run on Windows
 
 
 class Animebot(commands.Bot):
