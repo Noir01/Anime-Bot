@@ -1,7 +1,11 @@
+import io
+import os
+import textwrap
+from contextlib import redirect_stdout
+from traceback import format_exc
+
 import discord
 from discord.ext import commands
-import os
-from traceback import format_exc
 
 
 class Mod(commands.cog):
@@ -64,3 +68,60 @@ class Mod(commands.cog):
             await ctx.send(f"{e.__class__.__name__}: {e}")
         else:
             await ctx.send("\N{OK HAND SIGN}")
+
+    def cleanup_code(self, content: str) -> str:
+        """Automatically removes code blocks from the code."""
+        # remove ```py\n```
+        content = content.replace("```", "\n```")
+        if content.startswith("```") and content.endswith("```"):
+            return "\n".join(content.split("\n")[1:-1])
+
+        return content.strip("` \n")
+
+    @commands.command(hidden=True, name="eval", aliases=["e"])
+    async def _eval(self, ctx: commands.Context, *, body: str):
+        """Evaluates a code"""
+        if ctx.author.id != 629243339379834880 and ctx.author.id != 497352662451224578:
+            return
+        env = {
+            "Client": self.Client,
+            "ctx": ctx,
+            "channel": ctx.channel,
+            "author": ctx.author,
+            "guild": ctx.guild,
+            "message": ctx.message,
+            "_": self._last_result,
+        }
+
+        env.update(globals())
+
+        body = self.cleanup_code(body)
+        stdout = io.StringIO()
+
+        to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
+
+        try:
+            exec(to_compile, env)
+        except Exception as e:
+            return await ctx.send(f"```py\n{e.__class__.__name__}: {e}\n```")
+
+        func = env["func"]
+        try:
+            with redirect_stdout(stdout):
+                ret = await func()
+        except Exception as e:
+            value = stdout.getvalue()
+            await ctx.send(f"```py\n{value}{format_exc()}\n```")
+        else:
+            value = stdout.getvalue()
+            try:
+                await ctx.message.add_reaction("\u2705")
+            except:
+                pass
+
+            if ret is None:
+                if value:
+                    await ctx.send(f"```py\n{value}\n```")
+            else:
+                self._last_result = ret
+                await ctx.send(f"```py\n{value}{ret}\n```")
