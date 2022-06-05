@@ -1,30 +1,26 @@
-import os
-from traceback import format_exc
 from typing import Literal, Optional, Union
 
 import discord
 import psycopg
-from discord import Interaction, app_commands
+import psycopg_pool
+from discord import Interaction, app_commands, ui, ButtonStyle
 from discord.ext import commands
 from psycopg.types.json import Jsonb
-from collections import Counter
-
-import psycopg_pool
 
 
-class Confirm(discord.ui.View):
+class Confirm(ui.View):
     def __init__(self, timeout: int = 60) -> None:
         super().__init__()
         self.value = None
         self.timeout = timeout
 
-    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.success)
-    async def confirm(self, interaction: Interaction, button: discord.ui.Button):
+    @ui.button(label="Confirm", style=ButtonStyle.success)
+    async def confirm(self, interaction: Interaction, button: ui.Button):
         self.value = True
         self.stop()
 
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.grey)
-    async def cancel(self, interaction: Interaction, button: discord.ui.Button):
+    @ui.button(label="Cancel", style=ButtonStyle.grey)
+    async def cancel(self, interaction: Interaction, button: ui.Button):
         self.value = False
         self.stop()
 
