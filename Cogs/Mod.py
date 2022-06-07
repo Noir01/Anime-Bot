@@ -8,7 +8,7 @@ import discord
 from discord.ext import commands
 
 
-class Mod(commands.cog):
+class Mod(commands.Cog):
     def __init__(self, bot: commands.bot):
         self.bot = bot
 
