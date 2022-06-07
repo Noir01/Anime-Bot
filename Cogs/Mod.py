@@ -9,7 +9,7 @@ from discord.ext import commands
 
 
 class Mod(commands.Cog):
-    def __init__(self, bot: commands.bot):
+    def __init__(self, bot: commands.bot) -> None:
         self.bot = bot
 
     @commands.command(name="sql", aliases=["exec"], hidden=True)
@@ -34,7 +34,7 @@ class Mod(commands.Cog):
                     await ctx.send(format_exc())
 
     @commands.command(hidden=True)
-    async def load(self, ctx: commands.Context, *, module: str):
+    async def load(self, ctx: commands.Context, *, module: str) -> None:
         """Loads a module."""
         if ctx.author.id != 629243339379834880 and ctx.author.id != 497352662451224578:
             return
@@ -46,7 +46,7 @@ class Mod(commands.Cog):
             await ctx.send("\N{OK HAND SIGN}")
 
     @commands.command(hidden=True)
-    async def unload(self, ctx: commands.Context, *, module: str):
+    async def unload(self, ctx: commands.Context, *, module: str) -> None:
         """Unloads a module."""
         if ctx.author.id != 629243339379834880 and ctx.author.id != 497352662451224578:
             return
@@ -58,7 +58,7 @@ class Mod(commands.Cog):
             await ctx.send("\N{OK HAND SIGN}")
 
     @commands.group(name="reload", hidden=True, invoke_without_command=True)
-    async def _reload(self, ctx: commands.Context, *, module: str):
+    async def _reload(self, ctx: commands.Context, *, module: str) -> None:
         """Reloads a module."""
         if ctx.author.id != 629243339379834880 and ctx.author.id != 497352662451224578:
             return
@@ -79,7 +79,7 @@ class Mod(commands.Cog):
         return content.strip("` \n")
 
     @commands.command(hidden=True, name="eval", aliases=["e"])
-    async def _eval(self, ctx: commands.Context, *, body: str):
+    async def _eval(self, ctx: commands.Context, *, body: str) -> None:
         """Evaluates a code"""
         if ctx.author.id != 629243339379834880 and ctx.author.id != 497352662451224578:
             return
