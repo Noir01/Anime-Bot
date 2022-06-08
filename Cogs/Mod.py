@@ -39,7 +39,7 @@ class Mod(commands.Cog):
         if ctx.author.id != 629243339379834880 and ctx.author.id != 497352662451224578:
             return
         try:
-            await self.Client.load_extension(module)
+            await self.bot.load_extension(module)
         except commands.ExtensionError as e:
             await ctx.send(f"{e.__class__.__name__}: {e}")
         else:
@@ -51,7 +51,7 @@ class Mod(commands.Cog):
         if ctx.author.id != 629243339379834880 and ctx.author.id != 497352662451224578:
             return
         try:
-            await self.Client.unload_extension(module)
+            await self.bot.unload_extension(module)
         except commands.ExtensionError as e:
             await ctx.send(f"{e.__class__.__name__}: {e}")
         else:
@@ -63,7 +63,7 @@ class Mod(commands.Cog):
         if ctx.author.id != 629243339379834880 and ctx.author.id != 497352662451224578:
             return
         try:
-            await self.Client.reload_extension(module)
+            await self.bot.reload_extension(module)
         except commands.ExtensionError as e:
             await ctx.send(f"{e.__class__.__name__}: {e}")
         else:
@@ -84,7 +84,7 @@ class Mod(commands.Cog):
         if ctx.author.id != 629243339379834880 and ctx.author.id != 497352662451224578:
             return
         env = {
-            "Client": self.Client,
+            "Client": self.bot,
             "ctx": ctx,
             "channel": ctx.channel,
             "author": ctx.author,
