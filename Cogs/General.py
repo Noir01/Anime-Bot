@@ -6,23 +6,8 @@ import psycopg_pool
 from discord import Interaction, app_commands, ui, ButtonStyle
 from discord.ext import commands
 from psycopg.types.json import Jsonb
+from .utils.buttons import Confirm, InverseConfirm
 
-
-class Confirm(ui.View):
-    def __init__(self, timeout: int = 60) -> None:
-        super().__init__()
-        self.value = None
-        self.timeout = timeout
-
-    @ui.button(label="Confirm", style=ButtonStyle.success)
-    async def confirm(self, interaction: Interaction, button: ui.Button):
-        self.value = True
-        self.stop()
-
-    @ui.button(label="Cancel", style=ButtonStyle.grey)
-    async def cancel(self, interaction: Interaction, button: ui.Button):
-        self.value = False
-        self.stop()
 
 
 class General(commands.Cog):
@@ -317,12 +302,7 @@ query ($name: String, $page: Int, $perPage: Int) {
                 if not await self.find_(interaction.user.id, curr):
                     await interaction.response.send_message("You are not linked to any Anilist account.")
                     return
-                view = Confirm()
-                for child in view.children:
-                    if child.style == discord.ButtonStyle.success:
-                        child.style = discord.ButtonStyle.danger
-                    elif child.style == discord.ButtonStyle.danger:
-                        child.style = discord.ButtonStyle.success
+                view = InverseConfirm()
                 await interaction.response.send_message(
                     "Are you sure you want to unlink your Anilist account?",
                     view=view,
