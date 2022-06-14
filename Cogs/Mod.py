@@ -1,6 +1,7 @@
 import io
 import os
 import textwrap
+import typing
 from contextlib import redirect_stdout
 from traceback import format_exc
 
@@ -69,6 +70,34 @@ class Mod(commands.Cog):
         else:
             await ctx.send("\N{OK HAND SIGN}")
 
+    @commands.command(name="sync", hidden=True)
+    @commands.is_owner()
+    async def _sync(
+        self, ctx: commands.Context, guilds: commands.Greedy[discord.Object], spec: typing.Optional[typing.Literal["~", "*"]] = None
+    ) -> None:
+        if not guilds:
+            if spec == "~":
+                fmt = await self.bot.tree.sync(guild=ctx.guild)
+            elif spec == "*":
+                self.bot.tree.copy_global_to(guild=ctx.guild)
+                fmt = await self.bot.tree.sync(guild=ctx.guild)
+            else:
+                fmt = await self.bot.tree.sync()
+
+            await ctx.send(f"Synced {len(fmt)} commands {'globally' if spec is None else 'to the current guild.'}")
+            return
+
+        fmt = 0
+        for guild in guilds:
+            try:
+                await self.bot.tree.sync(guild=guild)
+            except discord.HTTPException:
+                pass
+            else:
+                fmt += 1
+
+        await ctx.send(f"Synced the tree to {fmt}/{len(guilds)} guilds.")
+
     def cleanup_code(self, content: str) -> str:
         """Automatically removes code blocks from the code."""
         # remove ```py\n```
@@ -125,6 +154,7 @@ class Mod(commands.Cog):
             else:
                 self._last_result = ret
                 await ctx.send(f"```py\n{value}{ret}\n```")
+
 
 async def setup(bot):
     await bot.add_cog(Mod(bot))
