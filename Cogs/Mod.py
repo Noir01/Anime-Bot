@@ -12,6 +12,7 @@ from discord.ext import commands
 class Mod(commands.Cog):
     def __init__(self, bot: commands.bot) -> None:
         self.bot = bot
+        self._last_result = None
 
     @commands.command(name="sql", aliases=["exec"], hidden=True)
     async def _sqlexecute(self, ctx: commands.Context, *, sql_query: str) -> None:
