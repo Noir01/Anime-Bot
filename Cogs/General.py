@@ -3,7 +3,7 @@ from typing import Literal, Optional, Union
 import discord
 import psycopg
 import psycopg_pool
-from discord import Interaction, app_commands, ui, ButtonStyle
+from discord import Interaction, app_commands
 from discord.ext import commands
 from psycopg.types.json import Jsonb
 from .utils.buttons import Confirm, InverseConfirm
