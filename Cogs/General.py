@@ -6,8 +6,8 @@ import psycopg_pool
 from discord import Interaction, app_commands
 from discord.ext import commands
 from psycopg.types.json import Jsonb
-from .utils.buttons import Confirm, InverseConfirm
 
+from .utils.buttons import Confirm, InverseConfirm
 
 
 class General(commands.Cog):
