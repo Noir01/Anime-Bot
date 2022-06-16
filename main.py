@@ -21,7 +21,7 @@ class WebhookHandler(logging.Handler):
 
 class WebhookFormatter(logging.Formatter):
     def formatTime(self, record: logging.LogRecord, datefmt: str | None = ...) -> str:
-        return f"<t:{int(record.created)}:f>"
+        return f"<t:{int(record.created)}:D> <t:{int(record.created)}:T>"  # Full date and time
 
 
 class Animebot(commands.Bot):
