@@ -43,9 +43,9 @@ class Animebot(commands.Bot):
             await self.load_extension(ext)
 
     async def close(self):
-        await super().close()
         await self.session.close()
         await self.pool.close()
+        await super().close()
 
     async def on_ready(self):
         print("Ready!")
