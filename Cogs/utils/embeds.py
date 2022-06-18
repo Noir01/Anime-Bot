@@ -28,7 +28,7 @@ def get_media_embed(media: dict, trending: bool = False) -> Embed:
             name="Format",
             value=(media["format"] if media["format"] in ("OVA", "TV") else media["format"].capitalize()),
         )
-    if media["episodes"] > 1:
+    if media["episodes"] and (media['episodes'] > 1):
         embedVar.add_field(
             name="Episodes",
             value=media["episodes"],
