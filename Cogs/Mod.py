@@ -1,22 +1,23 @@
-import io
-import os
-import textwrap
-import typing
+from io import StringIO
+from os import remove
+from textwrap import indent
 from contextlib import redirect_stdout
 from traceback import format_exc
+from typing import Literal, Optional
 
-import discord
-from discord.ext import commands
+from discord import File, Object
+from discord.errors import HTTPException
+from discord.ext.commands import Cog, Context, ExtensionError, Greedy, bot, command, group, is_owner
 
 
-class Mod(commands.Cog):
-    def __init__(self, bot: commands.bot) -> None:
+class Mod(Cog):
+    def __init__(self, bot: bot) -> None:
         self.bot = bot
         self._last_result = None
 
-    @commands.command(name="sql", aliases=["exec"], hidden=True)
-    @commands.is_owner()
-    async def _sqlexecute(self, ctx: commands.Context, *, sql_query: str) -> None:
+    @command(name="sql", aliases=["exec"], hidden=True)
+    @is_owner()
+    async def _sqlexecute(self, ctx: Context, *, sql_query: str) -> None:
         await ctx.channel.typing()
         async with self.bot.pool.connection() as conn:
             async with conn.cursor() as curr:
@@ -26,52 +27,50 @@ class Mod(commands.Cog):
                     result = str(await curr.fetchall())
                     try:
                         await ctx.send("Result:\n```" + result + "```")
-                    except discord.errors.HTTPException:
+                    except HTTPException:
                         with open("result.txt", "w") as f:
                             f.write(result)
-                        await ctx.send(content="Result:\n", file=discord.File("result.txt"))
-                        os.remove("result.txt")
+                        await ctx.send(content="Result:\n", file=File("result.txt"))
+                        remove("result.txt")
                 except BaseException:
                     await ctx.send(format_exc())
 
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def load(self, ctx: commands.Context, *, module: str) -> None:
+    @command(hidden=True)
+    @is_owner()
+    async def load(self, ctx: Context, *, module: str) -> None:
         """Loads a module."""
         try:
             await self.bot.load_extension(module)
-        except commands.ExtensionError as e:
+        except ExtensionError as e:
             await ctx.send(f"{e.__class__.__name__}: {e}")
         else:
             await ctx.send("\N{OK HAND SIGN}")
 
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def unload(self, ctx: commands.Context, *, module: str) -> None:
+    @command(hidden=True)
+    @is_owner()
+    async def unload(self, ctx: Context, *, module: str) -> None:
         """Unloads a module."""
         try:
             await self.bot.unload_extension(module)
-        except commands.ExtensionError as e:
+        except ExtensionError as e:
             await ctx.send(f"{e.__class__.__name__}: {e}")
         else:
             await ctx.send("\N{OK HAND SIGN}")
 
-    @commands.group(name="reload", hidden=True, invoke_without_command=True)
-    @commands.is_owner()
-    async def _reload(self, ctx: commands.Context, *, module: str) -> None:
+    @group(name="reload", hidden=True, invoke_without_command=True)
+    @is_owner()
+    async def _reload(self, ctx: Context, *, module: str) -> None:
         """Reloads a module."""
         try:
             await self.bot.reload_extension(module)
-        except commands.ExtensionError as e:
+        except ExtensionError as e:
             await ctx.send(f"{e.__class__.__name__}: {e}")
         else:
             await ctx.send("\N{OK HAND SIGN}")
 
-    @commands.command(name="sync", hidden=True)
-    @commands.is_owner()
-    async def _sync(
-        self, ctx: commands.Context, guilds: commands.Greedy[discord.Object], spec: typing.Optional[typing.Literal["~", "*"]] = None
-    ) -> None:
+    @command(name="sync", hidden=True)
+    @is_owner()
+    async def _sync(self, ctx: Context, guilds: Greedy[Object], spec: Optional[Literal["~", "*"]] = None) -> None:
         """Syncs the bot with the guilds.
         ,sync -> global sync
         ,sync ~ -> sync current guild
@@ -93,7 +92,7 @@ class Mod(commands.Cog):
         for guild in guilds:
             try:
                 await self.bot.tree.sync(guild=guild)
-            except discord.HTTPException:
+            except HTTPException:
                 pass
             else:
                 fmt += 1
@@ -109,9 +108,9 @@ class Mod(commands.Cog):
 
         return content.strip("` \n")
 
-    @commands.command(hidden=True, name="eval", aliases=["e"])
-    @commands.is_owner()
-    async def _eval(self, ctx: commands.Context, *, body: str) -> None:
+    @command(hidden=True, name="eval", aliases=["e"])
+    @is_owner()
+    async def _eval(self, ctx: Context, *, body: str) -> None:
         """Evaluates a code"""
         env = {
             "Client": self.bot,
@@ -126,9 +125,9 @@ class Mod(commands.Cog):
         env.update(globals())
 
         body = self.cleanup_code(body)
-        stdout = io.StringIO()
+        stdout = StringIO()
 
-        to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
+        to_compile = f'async def func():\n{indent(body, "  ")}'
 
         try:
             exec(to_compile, env)
@@ -156,9 +155,9 @@ class Mod(commands.Cog):
                 self._last_result = ret
                 await ctx.send(f"```py\n{value}{ret}\n```")
 
-    @commands.command(hidden=True, name="close", aliases=["shutdown"])
-    @commands.is_owner()
-    async def _close(self, ctx: commands.Context) -> None:
+    @command(hidden=True, name="close", aliases=["shutdown"])
+    @is_owner()
+    async def _close(self, ctx: Context) -> None:
         """Closes the bot."""
         await ctx.send("Closing...")
         await self.bot.close()
