@@ -1,3 +1,6 @@
+from typing import Literal
+
+
 mediaGraphQLQuery: str = """
 query ($page: Int, $perPage: Int, $search: String, $type: MediaType, $isAdult: Boolean) {
   Page(page: $page, perPage: $perPage) {
@@ -158,4 +161,29 @@ createDiscordAnilistSQLQuery: str = """
 CREATE TABLE IF NOT EXISTS discord_anilist (
   discord bigint PRIMARY KEY, anilist int UNIQUE
 )
+"""
+
+def createTableSQLQueryGenerator(type_: Literal["Anime", "Manga"], name: str) -> str:
+  return f"""
+CREATE TABLE IF NOT EXISTS {name} (
+  Discord bigint PRIMARY KEY, Anilist int UNIQUE, 
+  Status text, Progress int, Score text, 
+  {'Episodes' if type_ == "Anime" else 'Chapters'} int
+)
+"""
+
+def updateTableSQLQueryGenerator(type_: Literal["Anime", "Manga"], name: str) -> str:
+  return f"""
+INSERT INTO {name} (
+  Discord, Anilist, Status, Progress, 
+  Score, {'Episodes' if type_ == "Anime" else 'Chapters'}
+) 
+VALUES 
+  (% s, % s, % s, % s, % s, % s) ON CONFLICT (Discord) DO 
+UPDATE 
+SET 
+  (Status, Progress, Score, {'Episodes' if type_ == "Anime" else 'Chapters'}) = (
+    EXCLUDED.Status, EXCLUDED.Progress, 
+    EXCLUDED.Score, EXCLUDED.{'Episodes' if type_ == "Anime" else 'Chapters'}
+  )
 """

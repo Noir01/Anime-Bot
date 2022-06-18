@@ -1,13 +1,15 @@
 from typing import Literal, Optional, Union
 
 import discord
-import psycopg
+from discord import AllowedMentions, Member, User
+from psycopg import AsyncCursor
 import psycopg_pool
 from discord import Interaction, app_commands
 from discord.ext import commands
 from psycopg.types.json import Jsonb
 
 from .utils.buttons import Confirm, InverseConfirm
+from .utils.queries import updateGraphQLQuery, createTableSQLQueryGenerator, updateTableSQLQueryGenerator
 
 
 class General(commands.Cog):
@@ -16,7 +18,7 @@ class General(commands.Cog):
         self.existingAnimeTables = set()
         self.existingMangaTables = set()
 
-    async def updateExistingTables_(self, curr: psycopg.AsyncCursor) -> None:
+    async def updateExistingTables_(self, curr: AsyncCursor) -> None:
         """
         Updates the existingAnimeTables and existingMangaTables sets with the names of all tables in the database.
         """
@@ -28,7 +30,7 @@ class General(commands.Cog):
             elif tableTuple[0].startswith("m"):
                 self.existingMangaTables.add(tableTuple[0])
 
-    async def find_(self, userId: int, curr: psycopg.AsyncCursor) -> Optional[int]:
+    async def find_(self, userId: int, curr: AsyncCursor) -> Optional[int]:
         """
         Returns the anilist id of the user with the given discord id, or None if no user with the given id exists and vice versa.
         """
@@ -50,57 +52,12 @@ class General(commands.Cog):
     async def update_(self, _list: str, discordId: int, anilistId: int, pool: psycopg_pool.AsyncConnectionPool, force: bool) -> bool:
         async with pool.connection() as conn:
             async with conn.cursor() as curr:
-                if _list == "Anime":
-                    query = """
-                            query ($id: Int, $page: Int, $perPage: Int) {
-                                Page(page: $page, perPage: $perPage) {
-                                    pageInfo {
-                                    total
-                                    currentPage
-                                    lastPage
-                                    hasNextPage
-                                    perPage
-                                    }
-                                    mediaList (userId: $id, type: ANIME, sort: UPDATED_TIME_DESC) {
-                                    mediaId
-                                    status
-                                    progress
-                                    score
-                                    media {
-                                        episodes
-                                    }
-                                    }
-                                }
-                                }
-                            """
-                elif _list == "Manga":
-                    query = """
-                            query ($id: Int, $page: Int, $perPage: Int) {
-                                Page(page: $page, perPage: $perPage) {
-                                    pageInfo {
-                                    total
-                                    currentPage
-                                    lastPage
-                                    hasNextPage
-                                    perPage
-                                    }
-                                    mediaList (userId: $id, type: MANGA, sort: UPDATED_TIME_DESC) {
-                                    mediaId
-                                    status
-                                    progress
-                                    score
-                                    media {
-                                        chapters
-                                    }
-                                    }
-                                }
-                                }
-                            """
+                query = updateGraphQLQuery
                 mlist = []
                 nextPage = True
                 page = 1
                 while nextPage:
-                    variables = {"id": anilistId, "page": page, "perPage": 50}
+                    variables = {"id": anilistId, "page": page, "perPage": 50, "type": _list.upper()}
                     async with self.bot.session.post(
                         "https://graphql.anilist.co", json={"query": query, "variables": variables}
                     ) as resp:
@@ -121,26 +78,9 @@ class General(commands.Cog):
                     for media in mlist:
                         anime.add("a" + str(media["mediaId"]))
                         if ("a" + str(media["mediaId"])) not in self.existingAnimeTables:
-                            await curr.execute(
-                                f"""
-                                CREATE TABLE IF NOT EXISTS {'a' + str(media['mediaId'])} (Discord bigint PRIMARY KEY, 
-                                                                                        Anilist int UNIQUE, 
-                                                                                        Status text, Progress int, Score text, Episodes int)
-                                """
-                            )
+                            await curr.execute(createTableSQLQueryGenerator(type_="Anime", name="a" + str(media["mediaId"])))
                         await curr.execute(
-                            f"""
-                            INSERT INTO {'a' + str(media['mediaId'])} (Discord, Anilist, Status, Progress, Score, Episodes)
-                            VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT (Discord) DO
-                            UPDATE
-                            SET (Status,
-                                Progress,
-                                Score,
-                                Episodes) = (EXCLUDED.Status,
-                                EXCLUDED.Progress,
-                                EXCLUDED.Score,
-                                EXCLUDED.Episodes)
-                            """,
+                            updateTableSQLQueryGenerator(type_="Anime", name="a" + str(media["mediaId"])),
                             (
                                 discordId,
                                 anilistId,
@@ -180,25 +120,10 @@ class General(commands.Cog):
                         manga.add("m" + str(media["mediaId"]))
                         if ("m" + str(media["mediaId"])) not in self.existingMangaTables:
                             await curr.execute(
-                                f"""
-                                CREATE TABLE IF NOT EXISTS {'m' + str(media['mediaId'])} (Discord bigint PRIMARY KEY, 
-                                                                                        Anilist int UNIQUE, 
-                                                                                        Status text, Progress int, Score text, Chapters int)
-                                """
+                                await curr.execute(createTableSQLQueryGenerator(type_="Manga", name="m" + str(media["mediaId"])))
                             )
                         await curr.execute(
-                            f"""
-                            INSERT INTO {'m' + str(media['mediaId'])} (Discord, Anilist, Status, Progress, Score, Chapters)
-                            VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT (Discord) DO
-                            UPDATE
-                            SET (Status,
-                                Progress,
-                                Score,
-                                Chapters) = (EXCLUDED.Status,
-                                EXCLUDED.Progress,
-                                EXCLUDED.Score,
-                                EXCLUDED.Chapters)
-                            """,
+                            updateTableSQLQueryGenerator(type_="Manga", name="m" + str(media["mediaId"])),
                             (
                                 discordId,
                                 anilistId,
@@ -325,7 +250,7 @@ query ($name: String, $page: Int, $perPage: Int) {
         self,
         interaction: Interaction,
         _list: Literal["Anime", "Manga"],
-        user: Union[discord.Member, discord.User] = None,
+        user: Union[Member, User] = None,
         force: Optional[bool] = False,
     ) -> None:
         await interaction.response.defer()
@@ -336,7 +261,10 @@ query ($name: String, $page: Int, $perPage: Int) {
                 anilistID = await self.find_(user.id, curr)
 
                 if anilistID is None:
-                    await interaction.followup.send(f"You are not linked to any Anilist account. Use `/set` to link one.")
+                    await interaction.followup.send(
+                        content=f"{user.mention} is not linked to any Anilist account. Use `/set` to link one.",
+                        allowed_mentions=AllowedMentions.none(),
+                    )
                     return
 
                 if await self.update_(_list=_list, discordId=user.id, anilistId=anilistID, force=force, pool=self.bot.pool):
