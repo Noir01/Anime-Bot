@@ -31,6 +31,8 @@ class Animebot(Bot):
         self.initial_extensions = [
             "Cogs.General",
             "Cogs.Mod",
+            "Cogs.Anime",
+            "Cogs.Manga"
         ]
 
     async def setup_hook(self):
