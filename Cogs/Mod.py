@@ -77,10 +77,10 @@ class Mod(commands.Cog):
         self, ctx: commands.Context, guilds: commands.Greedy[discord.Object], spec: typing.Optional[typing.Literal["~", "*"]] = None
     ) -> None:
         """Syncs the bot with the guilds.
-            !sync -> global sync
-            !sync ~ -> sync current guild
-            !sync * -> copies all global app commands to current guild and syncs
-            !sync id_1 id_2 -> syncs guilds with id 1 and 2"""
+            ,sync -> global sync
+            ,sync ~ -> sync current guild
+            ,sync * -> copies all global app commands to current guild and syncs
+            ,sync id_1 id_2 -> syncs guilds with id 1 and 2"""
         if not guilds:
             if spec == "~":
                 fmt = await self.bot.tree.sync(guild=ctx.guild)
