@@ -15,9 +15,8 @@ class Mod(commands.Cog):
         self._last_result = None
 
     @commands.command(name="sql", aliases=["exec"], hidden=True)
+    @commands.is_owner()
     async def _sqlexecute(self, ctx: commands.Context, *, sql_query: str) -> None:
-        if ctx.author.id != 629243339379834880:
-            return
         await ctx.channel.typing()
         async with self.bot.pool.connection() as conn:
             async with conn.cursor() as curr:
@@ -36,10 +35,9 @@ class Mod(commands.Cog):
                     await ctx.send(format_exc())
 
     @commands.command(hidden=True)
+    @commands.is_owner()
     async def load(self, ctx: commands.Context, *, module: str) -> None:
         """Loads a module."""
-        if ctx.author.id != 629243339379834880 and ctx.author.id != 497352662451224578:
-            return
         try:
             await self.bot.load_extension(module)
         except commands.ExtensionError as e:
@@ -48,10 +46,9 @@ class Mod(commands.Cog):
             await ctx.send("\N{OK HAND SIGN}")
 
     @commands.command(hidden=True)
+    @commands.is_owner()
     async def unload(self, ctx: commands.Context, *, module: str) -> None:
         """Unloads a module."""
-        if ctx.author.id != 629243339379834880 and ctx.author.id != 497352662451224578:
-            return
         try:
             await self.bot.unload_extension(module)
         except commands.ExtensionError as e:
@@ -60,10 +57,9 @@ class Mod(commands.Cog):
             await ctx.send("\N{OK HAND SIGN}")
 
     @commands.group(name="reload", hidden=True, invoke_without_command=True)
+    @commands.is_owner()
     async def _reload(self, ctx: commands.Context, *, module: str) -> None:
         """Reloads a module."""
-        if ctx.author.id != 629243339379834880 and ctx.author.id != 497352662451224578:
-            return
         try:
             await self.bot.reload_extension(module)
         except commands.ExtensionError as e:
@@ -114,10 +110,9 @@ class Mod(commands.Cog):
         return content.strip("` \n")
 
     @commands.command(hidden=True, name="eval", aliases=["e"])
+    @commands.is_owner()
     async def _eval(self, ctx: commands.Context, *, body: str) -> None:
         """Evaluates a code"""
-        if ctx.author.id != 629243339379834880 and ctx.author.id != 497352662451224578:
-            return
         env = {
             "Client": self.bot,
             "ctx": ctx,
