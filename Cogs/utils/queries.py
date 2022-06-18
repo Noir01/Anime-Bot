@@ -179,7 +179,7 @@ INSERT INTO {name} (
   Score, {'Episodes' if type_ == "Anime" else 'Chapters'}
 ) 
 VALUES 
-  (% s, % s, % s, % s, % s, % s) ON CONFLICT (Discord) DO 
+  (%s, %s, %s, %s, %s, %s) ON CONFLICT (Discord) DO 
 UPDATE 
 SET 
   (Status, Progress, Score, {'Episodes' if type_ == "Anime" else 'Chapters'}) = (
