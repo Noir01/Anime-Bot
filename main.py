@@ -58,5 +58,5 @@ bot = Animebot()
 bot.run(
     environ["TOKEN"],
     log_handler=WebhookHandler(level=20),
-    log_formatter=WebhookFormatter("[{asctime}] [{levelname:<8}] {name}: {message}", style="{"),
+    log_formatter=WebhookFormatter("[{asctime}] [{levelname}] {name}: {message}", style="{"),
 )
