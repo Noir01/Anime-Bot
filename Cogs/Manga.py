@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Optional
 
-from discord import Colour, Embed, Interaction
+from discord import Colour, Interaction
 from discord.app_commands import Range, command, describe
 from discord.ext import commands
 from discord.ui import View
@@ -58,5 +58,5 @@ class Manga(commands.Cog):
         await interaction.edit_original_message(embed=mainEmbedVar, content=None, view=None)
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot):
     await bot.add_cog(Manga(bot))

@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Optional
 
-from discord import Colour, Embed, Interaction
+from discord import Colour, Interaction
 from discord.app_commands import Range, command, describe
 from discord.ext import commands
 from discord.ui import View
@@ -22,14 +22,8 @@ class Anime(commands.Cog):
         async with self.bot.session.post("https://graphql.anilist.co", params={"query": query, "type": "ANIME"}) as resp:
             self.trending.add(media["id"] for media in ((await resp.json())["data"]["Trending"]["media"]))
 
-    @command(
-        name="anime",
-        description="Searches for an anime with provided name using the Anilist API.",
-    )
-    @describe(
-        name="The name of the anime to search for.",
-        limit="The number of results to return. Defaults to 10.",
-    )
+    @command(name="anime", description="Searches for an anime with provided name using the Anilist API.")
+    @describe(name="The name of the anime to search for.", limit="The number of results to return. Defaults to 10.")
     async def _anime(
         self,
         interaction: Interaction,
@@ -65,5 +59,5 @@ class Anime(commands.Cog):
         await interaction.edit_original_message(embed=mainEmbedVar, content=None, view=None)
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot):
     await bot.add_cog(Anime(bot))
