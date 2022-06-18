@@ -1,11 +1,12 @@
-import logging
+from logging import Handler, Formatter, LogRecord
 from os import environ
 
-import aiohttp
 import discord
-import requests
-from discord.ext import commands
+from aiohttp import ClientSession
+from requests import post
+from discord.ext.commands import Bot
 from psycopg_pool import AsyncConnectionPool
+from discord import Intents, Object
 
 from Cogs.utils.queries import createGeneralSQLQuery, createDiscordAnilistSQLQuery
 
@@ -13,27 +14,27 @@ from Cogs.utils.queries import createGeneralSQLQuery, createDiscordAnilistSQLQue
 # Postgres needs this to run on Windows
 
 
-class WebhookHandler(logging.Handler):
-    def emit(self, record: logging.LogRecord) -> None:
+class WebhookHandler(Handler):
+    def emit(self, record: LogRecord) -> None:
         logEntry = self.format(record)
-        return requests.post(url=environ["WEBHOOK_URL"], json={"content": logEntry})
+        return post(url=environ['WEBHOOK_URL'], json={"content": logEntry})
 
 
-class WebhookFormatter(logging.Formatter):
-    def formatTime(self, record: logging.LogRecord, datefmt: str | None = ...) -> str:
-        return f"<t:{int(record.created)}:D> <t:{int(record.created)}:T>"  # Full date and time
+class WebhookFormatter(Formatter):
+    def formatTime(self, record: LogRecord, datefmt: str | None = ...) -> str:
+        return f"<t:{int(record.created)}:D> <t:{int(record.created)}:T>" # Full date and time
 
 
-class Animebot(commands.Bot):
+class Animebot(Bot):
     def __init__(self):
-        super().__init__(command_prefix=",", intents=discord.Intents.default(), application_id=807048421500387329)
+        super().__init__(command_prefix=",", intents=Intents.default(), application_id=807048421500387329)
         self.initial_extensions = [
             "Cogs.General",
             "Cogs.Mod",
         ]
 
     async def setup_hook(self):
-        self.session = aiohttp.ClientSession()
+        self.session = ClientSession()
         self.pool = AsyncConnectionPool(conninfo=environ["DATABASE_URL"])
         async with self.pool.connection() as conn:
             async with conn.cursor() as curr:
