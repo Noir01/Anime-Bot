@@ -9,16 +9,15 @@ def get_media_embed(media: dict, trending: bool = False) -> Embed:
     """
     Returns an embed with the media information. Works for both anime and manga.
     """
-    embedVar = Embed(
-        title=(
-            media["title"]["romaji"]
-            if media["title"]["romaji"]
-            else (media["title"]["english"] if media["title"]["english"] else media["title"]["native"])
-        ),
-        description=markdownify(media["description"]),
-        color=(Colour(int(media["coverImage"]["color"][1:], 16)) if media["coverImage"]["color"] else Colour(69420).random()),
-        url=media["siteUrl"],
+    embedVar = Embed()
+    embedVar.title = (
+        media["title"]["romaji"]
+        if media["title"]["romaji"]
+        else (media["title"]["english"] if media["title"]["english"] else media["title"]["native"])
     )
+    embedVar.description = markdownify(media["description"])
+    embedVar.color = Colour(int(media["coverImage"]["color"][1:], 16)) if media["coverImage"]["color"] else Colour(69420).random()
+    embedVar.url = media["siteUrl"]
     if media["coverImage"]["extraLarge"]:
         embedVar.set_thumbnail(url=media["coverImage"]["extraLarge"])
     if media["bannerImage"]:
@@ -28,7 +27,7 @@ def get_media_embed(media: dict, trending: bool = False) -> Embed:
             name="Format",
             value=(media["format"] if media["format"] in ("OVA", "TV") else media["format"].capitalize()),
         )
-    if media["episodes"] and (media['episodes'] > 1):
+    if media["episodes"] and (media["episodes"] > 1):
         embedVar.add_field(
             name="Episodes",
             value=media["episodes"],
@@ -125,11 +124,11 @@ def get_media_embed(media: dict, trending: bool = False) -> Embed:
 
 
 def get_media_list_embed(mediaList: list[dict[str, str]], user: Union[Member, User]) -> Embed:
-    embedVar = Embed(
-        title="Search results",
-        description=f"<@{user.id}>, Please click on the respective button to get view it.",
-        color=user.color if not str(user.color) == "#000000" else Colour(69420).random(),
-    )
+    embedVar = Embed()
+    embedVar.title = "Search results"
+    embedVar.description = f"<@{user.id}>, Please click on the respective button to get view it."
+    embedVar.color = user.color if not str(user.color) == "#000000" else Colour(69420).random()
+
     embedVar.set_footer(
         text="Powered by Anilist API",
         icon_url="https://cdn.discordapp.com/attachments/811766823606943787/987361587352469544/anilistIcon.png",
