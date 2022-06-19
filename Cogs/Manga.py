@@ -6,9 +6,9 @@ from discord.app_commands import Range, command, describe
 from discord.ext import commands
 from discord.ui import View
 
+from .utils.buttons import NumberedButton
 from .utils.embeds import get_media_embed, get_media_list_embed
 from .utils.queries import mediaGraphQLQuery, trendingGraphQLQuery
-from .utils.buttons import NumberedButton
 
 
 class Manga(commands.Cog):
