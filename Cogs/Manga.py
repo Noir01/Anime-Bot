@@ -39,7 +39,7 @@ class Manga(commands.Cog):
         async with self.bot.session.post("https://graphql.anilist.co/", json=params) as resp:
             response = await resp.json()
         if not response["data"]["Page"]["media"]:
-            await interaction.response.send_message("No manga found for that search.", ephemeral=True)
+            await interaction.edit_original_message("No manga found for that search.")
             return
         searchEmbedVar = get_media_list_embed(response["data"]["Page"]["media"], interaction.user)
         view = View(timeout=60)
