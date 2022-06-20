@@ -41,21 +41,29 @@ class Manga(commands.Cog):
         if not response["data"]["Page"]["media"]:
             await interaction.edit_original_message("No manga found for that search.")
             return
-        searchEmbedVar = get_media_list_embed(response["data"]["Page"]["media"], interaction.user)
-        view = View(timeout=60)
-        for i in range(0, len(response["data"]["Page"]["media"])):
-            view.add_item(NumberedButton(i + 1))
-        await interaction.edit_original_message(embed=searchEmbedVar, view=view)
-        await view.wait()
-        if view.value is None:
-            searchEmbedVar.color = Colour(int("B20000", 16))
-            await interaction.edit_original_message(embed=searchEmbedVar, view=None)
-            return
-        media = response["data"]["Page"]["media"][view.value - 1]
-        if (not self.trending) or datetime.now() - self.last_updated > timedelta(hours=1):
-            await self.updateTrending()
-        mainEmbedVar = get_media_embed(media=media, trending=media["id"] in self.trending)
-        await interaction.edit_original_message(embed=mainEmbedVar, content=None, view=None)
+        elif len(response["data"]["Page"]["media"]) == 1:
+            media: dict = response["data"]["Page"]["media"][0]
+            if (not self.trending) or datetime.now() - self.last_updated > timedelta(hours=1):
+                await self.updateTrending()
+            mainEmbedVar = get_media_embed(media=media, trending=(media["id"] in self.trending))
+            await interaction.edit_original_message(embed=mainEmbedVar, content=None, view=None)
+        else:
+            searchEmbedVar = get_media_list_embed(response["data"]["Page"]["media"], interaction.user)
+            view = View(timeout=60)
+            view.value = None
+            for i in range(0, len(response["data"]["Page"]["media"])):
+                view.add_item(NumberedButton(i + 1))
+            await interaction.edit_original_message(embed=searchEmbedVar, view=view)
+            await view.wait()
+            if view.value is None:
+                searchEmbedVar.color = Colour(int("B20000", 16))
+                await interaction.edit_original_message(embed=searchEmbedVar, view=None)
+                return
+            media: dict = response["data"]["Page"]["media"][view.value - 1]
+            if (not self.trending) or datetime.now() - self.last_updated > timedelta(hours=1):
+                await self.updateTrending()
+            mainEmbedVar = get_media_embed(media=media, trending=(media["id"] in self.trending))
+            await interaction.edit_original_message(embed=mainEmbedVar, content=None, view=None)
 
 
 async def setup(bot: commands.Bot):
