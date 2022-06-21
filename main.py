@@ -32,7 +32,8 @@ class Animebot(Bot):
             "Cogs.General",
             "Cogs.Mod",
             "Cogs.Anime",
-            "Cogs.Manga"
+            "Cogs.Manga",
+            "Cogs.Character",
         ]
 
     async def setup_hook(self):

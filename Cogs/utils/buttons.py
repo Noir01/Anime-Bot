@@ -40,3 +40,26 @@ class InverseConfirm(discord.ui.View):
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.value = False
         self.stop()
+
+class Pagination(discord.ui.View):
+    def __init__(self, embeds: list[discord.Embed], timeout: int = 60) -> None:
+        super().__init__(timeout=timeout)
+        self.pages = embeds
+        self.current_page = 0
+    
+    async def format_page(self, interaction: discord.Interaction) -> None:
+        if self.current_page < 0:
+            self.current_page = len(self.pages) - 1
+        elif self.current_page == len(self.pages):
+            self.current_page = 0
+        return await interaction.response.edit_message(embed=self.pages[self.current_page])
+
+    @discord.ui.button(label="⬅️", style=discord.ButtonStyle.gray)
+    async def previous(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+        self.current_page -= 1
+        await self.format_page(interaction)
+    
+    @discord.ui.button(label="➡️", style=discord.ButtonStyle.gray)
+    async def forward(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
+        self.current_page += 1
+        await self.format_page(interaction)

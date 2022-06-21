@@ -118,6 +118,70 @@ query ($type: MediaType) {
 }
 """
 
+characterGraphQLQuery: str = """
+query ($id: Int, $page: Int, $perPage: Int, $search: String) {
+  Page(page: $page, perPage: $perPage) {
+    pageInfo {
+      total
+      currentPage
+      lastPage
+      hasNextPage
+      perPage
+    }
+    characters(id: $id, search: $search, sort: FAVOURITES_DESC) {
+      id
+      name {
+        full
+        native
+        alternative
+      }
+      siteUrl
+      favourites
+      image {
+        large
+      }
+      description
+      dateOfBirth {
+        month
+        day
+      }
+      gender
+      animeconnection: media (sort:POPULARITY_DESC, type: ANIME) {
+        edges {
+          characterRole
+          voiceActors (sort:FAVOURITES_DESC) {
+            name {
+              full
+            }
+            siteUrl
+            languageV2
+          }
+          node {
+            title {
+              romaji
+            }
+            type
+            siteUrl
+          }
+        }
+      }
+      mangaconnection:media (sort:POPULARITY_DESC, type: MANGA) {
+        edges {
+          characterRole
+          node {
+            title {
+              romaji
+            }
+            type
+            siteUrl
+          }
+        }
+      }
+    }
+  }
+}
+"""
+
 allTablesSQLQuery: str = """
 SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'
 """

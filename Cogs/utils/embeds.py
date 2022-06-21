@@ -1,8 +1,23 @@
 from datetime import datetime
 from typing import Union
-
+import re
 from discord import Embed, Colour, Member, User
 from markdownify import markdownify
+
+months = {
+    "1": "January",
+    "2": "February",
+    "3": "March",
+    "4": "April",
+    "5": "May",
+    "6": "June",
+    "7": "July",
+    "8": "August",
+    "9": "September",
+    "10": "October",
+    "11": "November",
+    "12": "December",
+}
 
 
 def get_media_embed(media: dict, trending: bool = False) -> Embed:
@@ -156,4 +171,82 @@ def get_media_list_embed(mediaList: list[dict[str, str]], user: Union[Member, Us
             inline=False,
         )
         x += 1
+    return embedVar
+
+
+def get_character_embed(character: dict, user: Union[Member, User]) -> Embed:
+    """
+    Returns an embed for a character.
+    """
+    embedVar = Embed()
+    embedVar.title = character["name"]["full"]
+    embedVar.color = user.color if not str(user.color) == "#000000" else Colour(69420).random()
+    embedVar.url = character["siteUrl"]
+    if character["image"]["large"]:
+        embedVar.set_thumbnail(url=character["image"]["large"])
+    if character["description"] is not None:
+        description = re.compile(r"(\~\!.+?\!\~)", re.DOTALL).split(markdownify(character["description"]))[0]
+        if len(description) > 4096:
+            description = description[:4093] + "..."
+    else:
+        description = "_No description available._"
+    embedVar.description = description
+    if character["name"]["alternative"]:
+        embedVar.add_field(
+            name="Alternative names", value=" | ".join([character["name"]["native"]] + character["name"]["alternative"]), inline=False
+        )
+    if character["gender"]:
+        embedVar.add_field(name="Gender", value=character["gender"])
+    if character["dateOfBirth"]["month"] and character["dateOfBirth"]["day"]:
+        embedVar.add_field(
+            name="Birthday", value=f"{character['dateOfBirth']['day']} {months[str(character['dateOfBirth']['month'])]}"
+        )
+    if character['animeconnection']['edges']:
+        for edge in character["animeconnection"]["edges"]:
+            for va in edge["voiceActors"]:
+                if va["languageV2"] == "Japanese":
+                    japaneseVA = f"[{va['name']['full']}]({va['siteUrl']})"
+                    embedVar.add_field(name="Voice actor", value=japaneseVA)
+                    break
+            else:
+                continue
+            break
+        value = ""
+        mainRoles = []
+        supportingRoles = []
+        backgroundRoles = []
+        for edge in character["mangaconnection"]["edges"]:
+            if edge['characterRole'] == "MAIN":
+                mainRoles.append(f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n")
+            elif edge['characterRole'] == "SUPPORTING":
+                supportingRoles.append(f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n")
+            else:
+                backgroundRoles.append(f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n")
+        if mainRoles:
+            value += "Main roles\n" + "".join(mainRoles)
+        if supportingRoles:
+            value += "Supporting roles\n" + "".join(supportingRoles)
+        if backgroundRoles:
+            value += "Background roles\n" + "".join(backgroundRoles)
+        embedVar.add_field(name="Anime", value=value, inline=False)
+    if character["mangaconnection"]["edges"]:
+        value = ""
+        mainRoles = []
+        supportingRoles = []
+        backgroundRoles = []
+        for edge in character["mangaconnection"]["edges"]:
+            if edge['characterRole'] == "MAIN":
+                mainRoles.append(f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n")
+            elif edge['characterRole'] == "SUPPORTING":
+                supportingRoles.append(f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n")
+            else:
+                backgroundRoles.append(f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n")
+        if mainRoles:
+            value += "Main roles\n" + "".join(mainRoles)
+        if supportingRoles:
+            value += "Supporting roles\n" + "".join(supportingRoles)
+        if backgroundRoles:
+            value += "Background roles\n" + "".join(backgroundRoles)
+        embedVar.add_field(name="Manga", value=value, inline=False)
+    
     return embedVar
