@@ -214,7 +214,7 @@ query ($id: Int, $page: Int, $perPage: Int, $type: MediaType) {
 }
 """
 
-createGeneralSQLQuery : str = """
+createGeneralSQLQuery: str = """
 CREATE TABLE IF NOT EXISTS general (
   discord bigint PRIMARY KEY, anilist int UNIQUE, 
   anime JSON, manga JSON
@@ -227,8 +227,9 @@ CREATE TABLE IF NOT EXISTS discord_anilist (
 )
 """
 
+
 def createTableSQLQueryGenerator(type_: Literal["Anime", "Manga"], name: str) -> str:
-  return f"""
+    return f"""
 CREATE TABLE IF NOT EXISTS {name} (
   Discord bigint PRIMARY KEY, Anilist int UNIQUE, 
   Status text, Progress int, Score text, 
@@ -236,8 +237,9 @@ CREATE TABLE IF NOT EXISTS {name} (
 )
 """
 
+
 def updateTableSQLQueryGenerator(type_: Literal["Anime", "Manga"], name: str) -> str:
-  return f"""
+    return f"""
 INSERT INTO {name} (
   Discord, Anilist, Status, Progress, 
   Score, {'Episodes' if type_ == "Anime" else 'Chapters'}

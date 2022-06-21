@@ -24,12 +24,7 @@ class Manga(commands.Cog):
 
     @command(name="manga", description="Searches for a manga with provided name using the Anilist API.")
     @describe(name="The name of the manga to search for.", limit="The number of results to return. Defaults to 10.")
-    async def _manga(
-        self,
-        interaction: Interaction,
-        name: str,
-        limit: Optional[Range[int, 1, 25]] = 10,
-    ) -> None:
+    async def _manga(self, interaction: Interaction, name: str, limit: Optional[Range[int, 1, 25]] = 10) -> None:
         await interaction.response.defer()
         query = mediaGraphQLQuery
         variables = {"search": name, "perPage": limit, "page": 1, "type": "MANGA"}

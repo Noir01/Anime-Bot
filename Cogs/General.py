@@ -146,8 +146,7 @@ class General(commands.Cog):
                         else:
                             if manga - result:
                                 await curr.execute(
-                                    "UPDATE general SET anime=%s WHERE discord=%s",
-                                    (Jsonb({"manga": list(manga | result)}), discordId),
+                                    "UPDATE general SET anime=%s WHERE discord=%s", (Jsonb({"manga": list(manga | result)}), discordId)
                                 )
                         return True
                     except TypeError:
@@ -194,8 +193,7 @@ query ($name: String, $page: Int, $perPage: Int) {
                     return
                 view = Confirm()
                 await interaction.response.send_message(
-                    content=f"Is [{user['name']}]({user['siteUrl']}) the account you want to link?",
-                    view=view,
+                    content=f"Is [{user['name']}]({user['siteUrl']}) the account you want to link?", view=view
                 )
                 if not await view.wait():
                     if view.value:
@@ -228,10 +226,7 @@ query ($name: String, $page: Int, $perPage: Int) {
                     await interaction.response.send_message("You are not linked to any Anilist account.")
                     return
                 view = InverseConfirm()
-                await interaction.response.send_message(
-                    "Are you sure you want to unlink your Anilist account?",
-                    view=view,
-                )
+                await interaction.response.send_message("Are you sure you want to unlink your Anilist account?", view=view)
                 if not await view.wait():
                     if view.value:
                         await curr.execute(f"DELETE FROM discord_anilist WHERE discord={interaction.user.id}")

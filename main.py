@@ -17,24 +17,18 @@ from Cogs.utils.queries import createGeneralSQLQuery, createDiscordAnilistSQLQue
 class WebhookHandler(Handler):
     def emit(self, record: LogRecord) -> None:
         logEntry = self.format(record)
-        return post(url=environ['WEBHOOK_URL'], json={"content": logEntry})
+        return post(url=environ["WEBHOOK_URL"], json={"content": logEntry})
 
 
 class WebhookFormatter(Formatter):
     def formatTime(self, record: LogRecord, datefmt: str | None = ...) -> str:
-        return f"<t:{int(record.created)}:D> <t:{int(record.created)}:T>" # Full date and time
+        return f"<t:{int(record.created)}:D> <t:{int(record.created)}:T>"  # Full date and time
 
 
 class Animebot(Bot):
     def __init__(self):
         super().__init__(command_prefix=",", intents=Intents.default(), application_id=807048421500387329)
-        self.initial_extensions = [
-            "Cogs.General",
-            "Cogs.Mod",
-            "Cogs.Anime",
-            "Cogs.Manga",
-            "Cogs.Character",
-        ]
+        self.initial_extensions = ["Cogs.General", "Cogs.Mod", "Cogs.Anime", "Cogs.Manga", "Cogs.Character"]
 
     async def setup_hook(self):
         self.session = ClientSession()

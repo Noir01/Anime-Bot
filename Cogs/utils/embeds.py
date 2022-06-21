@@ -39,33 +39,22 @@ def get_media_embed(media: dict, trending: bool = False) -> Embed:
         embedVar.set_image(url=media["bannerImage"])
     if media["format"]:
         embedVar.add_field(
-            name="Format",
-            value=(media["format"] if media["format"] in ("OVA", "TV") else media["format"].capitalize()),
+            name="Format", value=(media["format"] if media["format"] in ("OVA", "TV") else media["format"].capitalize())
         )
     if media["episodes"] and (media["episodes"] > 1):
-        embedVar.add_field(
-            name="Episodes",
-            value=media["episodes"],
-        )
+        embedVar.add_field(name="Episodes", value=media["episodes"])
     if media["duration"]:
         embedVar.add_field(
-            name="Average runtime" if media["format"] not in {"MOVIE", "MUSIC"} else "Runtime",
-            value=f"{media['duration']} minutes",
+            name="Average runtime" if media["format"] not in {"MOVIE", "MUSIC"} else "Runtime", value=f"{media['duration']} minutes"
         )
     if media["chapters"]:
         embedVar.add_field(name="Chapters", value=str(media["chapters"]))
     if media["volumes"]:
         embedVar.add_field(name="Volumes", value=str(media["volumes"]))
     if media["status"]:
-        embedVar.add_field(
-            name="Status",
-            value=media["status"].capitalize().replace("_", " "),
-        )
+        embedVar.add_field(name="Status", value=media["status"].capitalize().replace("_", " "))
     if media["popularity"]:
-        embedVar.add_field(
-            name="Popularity",
-            value="{:,}".format(media["popularity"]) + ("\nTrending" if trending else ""),
-        )
+        embedVar.add_field(name="Popularity", value="{:,}".format(media["popularity"]) + ("\nTrending" if trending else ""))
     if media["averageScore"]:
         embedVar.add_field(name="Score", value=f"{media['averageScore']/10}")
     if media["favourites"]:
@@ -78,23 +67,15 @@ def get_media_embed(media: dict, trending: bool = False) -> Embed:
             + ("🇯🇵" if media["countryOfOrigin"] == "JP" else ("🇨🇳" if media["countryOfOrigin"] == "CN" else "🇰🇷")),
         )
     if media["season"] and media["seasonYear"]:
-        embedVar.add_field(
-            name="Season",
-            value=media["season"].capitalize() + " " + str(media["seasonYear"]),
-        )
+        embedVar.add_field(name="Season", value=media["season"].capitalize() + " " + str(media["seasonYear"]))
     if media["startDate"] and media["startDate"]["month"] and media["startDate"]["day"]:
         timestamp = str(
             int(
-                datetime(
-                    year=media["startDate"]["year"],
-                    month=media["startDate"]["month"],
-                    day=media["startDate"]["day"],
-                ).timestamp()
+                datetime(year=media["startDate"]["year"], month=media["startDate"]["month"], day=media["startDate"]["day"]).timestamp()
             )
         )
         embedVar.add_field(
-            name="Start date" if media["format"] != "MOVIE" else "Release date",
-            value=f"<t:{timestamp}:D>\n_(<t:{timestamp}:R>)_",
+            name="Start date" if media["format"] != "MOVIE" else "Release date", value=f"<t:{timestamp}:D>\n_(<t:{timestamp}:R>)_"
         )
     if (
         media["endDate"]
@@ -103,13 +84,7 @@ def get_media_embed(media: dict, trending: bool = False) -> Embed:
         and media["format"] != "MOVIE"  # Don't want to show end date for movies
     ):
         timestamp = str(
-            int(
-                datetime(
-                    year=media["endDate"]["year"],
-                    month=media["endDate"]["month"],
-                    day=media["endDate"]["day"],
-                ).timestamp()
-            )
+            int(datetime(year=media["endDate"]["year"], month=media["endDate"]["month"], day=media["endDate"]["day"]).timestamp())
         )
         embedVar.add_field(name="End date", value=f"<t:{timestamp}:D>\n_(<t:{timestamp}:R>)_")
     if media["characters"]["edges"]:
@@ -201,7 +176,7 @@ def get_character_embed(character: dict, user: Union[Member, User]) -> Embed:
         embedVar.add_field(
             name="Birthday", value=f"{character['dateOfBirth']['day']} {months[str(character['dateOfBirth']['month'])]}"
         )
-    if character['animeconnection']['edges']:
+    if character["animeconnection"]["edges"]:
         for edge in character["animeconnection"]["edges"]:
             for va in edge["voiceActors"]:
                 if va["languageV2"] == "Japanese":
@@ -216,12 +191,18 @@ def get_character_embed(character: dict, user: Union[Member, User]) -> Embed:
         supportingRoles = []
         backgroundRoles = []
         for edge in character["mangaconnection"]["edges"]:
-            if edge['characterRole'] == "MAIN":
-                mainRoles.append(f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n")
-            elif edge['characterRole'] == "SUPPORTING":
-                supportingRoles.append(f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n")
+            if edge["characterRole"] == "MAIN":
+                mainRoles.append(
+                    f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n"
+                )
+            elif edge["characterRole"] == "SUPPORTING":
+                supportingRoles.append(
+                    f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n"
+                )
             else:
-                backgroundRoles.append(f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n")
+                backgroundRoles.append(
+                    f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n"
+                )
         if mainRoles:
             value += "Main roles\n" + "".join(mainRoles)
         if supportingRoles:
@@ -235,12 +216,18 @@ def get_character_embed(character: dict, user: Union[Member, User]) -> Embed:
         supportingRoles = []
         backgroundRoles = []
         for edge in character["mangaconnection"]["edges"]:
-            if edge['characterRole'] == "MAIN":
-                mainRoles.append(f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n")
-            elif edge['characterRole'] == "SUPPORTING":
-                supportingRoles.append(f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n")
+            if edge["characterRole"] == "MAIN":
+                mainRoles.append(
+                    f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n"
+                )
+            elif edge["characterRole"] == "SUPPORTING":
+                supportingRoles.append(
+                    f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n"
+                )
             else:
-                backgroundRoles.append(f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n")
+                backgroundRoles.append(
+                    f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n"
+                )
         if mainRoles:
             value += "Main roles\n" + "".join(mainRoles)
         if supportingRoles:
@@ -248,5 +235,5 @@ def get_character_embed(character: dict, user: Union[Member, User]) -> Embed:
         if backgroundRoles:
             value += "Background roles\n" + "".join(backgroundRoles)
         embedVar.add_field(name="Manga", value=value, inline=False)
-    
+
     return embedVar
