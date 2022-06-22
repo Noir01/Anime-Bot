@@ -22,6 +22,8 @@ months = {
 
 spoilerREG = re.compile(r"(<span class='markdown_spoiler'><span>)(.+?)(</span></span>)", re.DOTALL)
 newLineREG = re.compile(r"(\n)+")
+
+
 def get_media_embed(media: dict, trending: bool = False) -> Embed:
     """
     Returns an embed with the media information. Works for both anime and manga.
