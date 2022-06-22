@@ -194,7 +194,7 @@ def get_character_embed(character: dict, user: Union[Member, User]) -> Embed:
         mainRoles = []
         supportingRoles = []
         backgroundRoles = []
-        for edge in character["mangaconnection"]["edges"]:
+        for edge in character["animeconnection"]["edges"]:
             if edge["characterRole"] == "MAIN":
                 mainRoles.append(
                     f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n"
