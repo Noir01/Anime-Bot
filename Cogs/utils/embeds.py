@@ -1,7 +1,8 @@
+import re
 from datetime import datetime
 from typing import Union
-import re
-from discord import Embed, Colour, Member, User
+
+from discord import Colour, Embed, Member, User
 from markdownify import markdownify
 
 months = {
@@ -199,7 +200,7 @@ def get_character_embed(character: dict, user: Union[Member, User]) -> Embed:
                 supportingRoles.append(
                     f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n"
                 )
-            else:
+            elif edge["characterRole"] == "BACKGROUND":
                 backgroundRoles.append(
                     f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n"
                 )
