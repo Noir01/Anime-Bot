@@ -57,7 +57,7 @@ query ($page: Int, $perPage: Int, $search: String, $type: MediaType, $isAdult: B
           }
         }
       }
-      description(asHtml: false)
+      description(asHtml: true)
       startDate {
         year
         month
@@ -140,7 +140,7 @@ query ($id: Int, $page: Int, $perPage: Int, $search: String) {
       image {
         large
       }
-      description
+      description (asHtml: true)
       dateOfBirth {
         month
         day
