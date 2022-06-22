@@ -161,7 +161,7 @@ def get_character_embed(character: dict, user: Union[Member, User]) -> Embed:
     if character["image"]["large"]:
         embedVar.set_thumbnail(url=character["image"]["large"])
     if character["description"] is not None:
-        description = re.compile(r"(\~\!.+?\!\~)", re.DOTALL).split(markdownify(character["description"]))[0]
+        description = markdownify(re.compile(r"(\~\!.+?\!\~)", re.DOTALL).split(character["description"])[0])
         if len(description) > 4096:
             description = description[:4093] + "..."
     else:
