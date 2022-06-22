@@ -20,7 +20,8 @@ months = {
     "12": "December",
 }
 
-
+spoilerREG = re.compile(r"(<span class='markdown_spoiler'><span>)(.+?)(</span></span>)", re.DOTALL)
+newLineREG = re.compile(r"(\n)+")
 def get_media_embed(media: dict, trending: bool = False) -> Embed:
     """
     Returns an embed with the media information. Works for both anime and manga.
@@ -161,7 +162,7 @@ def get_character_embed(character: dict, user: Union[Member, User]) -> Embed:
     if character["image"]["large"]:
         embedVar.set_thumbnail(url=character["image"]["large"])
     if character["description"] is not None:
-        description = markdownify(re.compile(r"(\~\!.+?\!\~)", re.DOTALL).split(character["description"])[0])
+        description = newLineREG.sub("\n\n", markdownify(spoilerREG.sub("", character["description"])))
         if len(description) > 4096:
             description = description[:4093] + "..."
     else:
