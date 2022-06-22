@@ -34,7 +34,13 @@ def get_media_embed(media: dict, trending: bool = False) -> Embed:
         if media["title"]["romaji"]
         else (media["title"]["english"] if media["title"]["english"] else media["title"]["native"])
     )
-    embedVar.description = markdownify(media["description"])
+    if media["description"]:
+        description = newLineREG.sub("\n\n", markdownify(media["description"]))
+        if len(description) > 4096:
+            description = description[:4093] + "..."
+    else:
+        description = "_No description available._"
+    embedVar.description = description
     embedVar.color = Colour(int(media["coverImage"]["color"][1:], 16)) if media["coverImage"]["color"] else Colour(69420).random()
     embedVar.url = media["siteUrl"]
     if media["coverImage"]["extraLarge"]:
