@@ -23,7 +23,7 @@ class Character(commands.Cog):
         async with self.bot.session.post("https://graphql.anilist.co/", json=params) as resp:
             response = await resp.json()
         if len(response["data"]["Page"]["characters"]) == 0:
-            await interaction.edit_original_message("No characters found for that search.")
+            await interaction.edit_original_message(content="No characters found for that search.")
         elif len(response["data"]["Page"]["characters"]) == 1:
             await interaction.edit_original_message(
                 embed=get_character_embed(response["data"]["Page"]["characters"][0], user=interaction.user)
