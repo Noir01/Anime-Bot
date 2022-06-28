@@ -21,7 +21,7 @@ months = {
 }
 
 spoilerREG = re.compile(r"(<span class='markdown_spoiler'><span>)(.+?)(</span></span>)", re.DOTALL)
-newLineREG = re.compile(r"(\n){2,}")
+newLineREG = re.compile(r"(\n)+(\s)*(\n)+")  # Regex that targets newlines and any spaces between them.
 
 
 def get_media_embed(media: dict, trending: bool = False) -> Embed:
