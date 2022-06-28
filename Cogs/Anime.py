@@ -47,7 +47,7 @@ class Anime(commands.Cog):
             view = View(timeout=60)
             view.value = None
             for i in range(0, len(response["data"]["Page"]["media"])):
-                view.add_item(NumberedButton(i + 1))
+                view.add_item(NumberedButton(user=interaction.user, index=(i + 1)))
             await interaction.edit_original_message(embed=searchEmbedVar, view=view)
             await view.wait()
             if view.value is None:

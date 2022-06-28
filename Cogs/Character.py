@@ -30,7 +30,7 @@ class Character(commands.Cog):
             )
         else:
             embeds = [get_character_embed(character, user=interaction.user) for character in response["data"]["Page"]["characters"]]
-            view = Pagination(embeds, timeout=60)
+            view = Pagination(embeds=embeds, user=interaction.user, timeout=60)
             await interaction.edit_original_message(embed=view.pages[0], view=view)
             await view.wait()
             await interaction.edit_original_message(view=view.clear_items())

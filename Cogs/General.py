@@ -191,7 +191,7 @@ query ($name: String, $page: Int, $perPage: Int) {
                         f"[{user['name']}](https://anilist.co/user/{user['name']}) is already registered under another discord account."
                     )
                     return
-                view = Confirm()
+                view = Confirm(user=interaction.user)
                 await interaction.response.send_message(
                     content=f"Is [{user['name']}]({user['siteUrl']}) the account you want to link?", view=view
                 )
@@ -225,7 +225,7 @@ query ($name: String, $page: Int, $perPage: Int) {
                 if not await self.find_(interaction.user.id, curr):
                     await interaction.response.send_message("You are not linked to any Anilist account.")
                     return
-                view = InverseConfirm()
+                view = InverseConfirm(user=interaction.user)
                 await interaction.response.send_message("Are you sure you want to unlink your Anilist account?", view=view)
                 if not await view.wait():
                     if view.value:
