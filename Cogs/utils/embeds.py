@@ -213,12 +213,15 @@ def get_character_embed(character: dict, user: Union[Member, User]) -> Embed:
                 backgroundRoles.append(
                     f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n"
                 )
-        if mainRoles:
-            value += "Main roles\n" + "".join(mainRoles)
-        if supportingRoles:
-            value += "Supporting roles\n" + "".join(supportingRoles)
-        if backgroundRoles:
-            value += "Background roles\n" + "".join(backgroundRoles)
+        tempVar = "Main roles\n" + "".join(mainRoles)
+        if mainRoles and len(value) + len(tempVar) <= 1024:
+            value += tempVar
+        tempVar = "Supporting roles\n" + "".join(supportingRoles)
+        if supportingRoles and len(value) + len(tempVar) <= 1024:
+            value += tempVar
+        tempVar = "Background roles\n" + "".join(backgroundRoles)
+        if backgroundRoles and len(value) + len(tempVar) <= 1024:
+            value += tempVar
         embedVar.add_field(name="Anime", value=value, inline=False)
     if character["mangaconnection"]["edges"]:
         value = ""
@@ -238,12 +241,15 @@ def get_character_embed(character: dict, user: Union[Member, User]) -> Embed:
                 backgroundRoles.append(
                     f"- [{edge['node']['title']['romaji'] if edge['node']['title']['romaji'] else edge['node']['title']['english']}]({edge['node']['siteUrl']})\n"
                 )
-        if mainRoles:
-            value += "Main roles\n" + "".join(mainRoles)
-        if supportingRoles:
-            value += "Supporting roles\n" + "".join(supportingRoles)
-        if backgroundRoles:
-            value += "Background roles\n" + "".join(backgroundRoles)
+        tempVar = "Main roles\n" + "".join(mainRoles)
+        if mainRoles and len(value) + len(tempVar) <= 1024:
+            value += tempVar
+        tempVar = "Supporting roles\n" + "".join(supportingRoles)
+        if supportingRoles and len(value) + len(tempVar) <= 1024:
+            value += tempVar
+        tempVar = "Background roles\n" + "".join(backgroundRoles)
+        if backgroundRoles and len(value) + len(tempVar) <= 1024:
+            value += tempVar
         embedVar.add_field(name="Manga", value=value, inline=False)
 
     return embedVar
