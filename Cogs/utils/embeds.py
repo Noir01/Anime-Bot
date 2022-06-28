@@ -252,4 +252,7 @@ def get_character_embed(character: dict, user: Union[Member, User]) -> Embed:
             value += tempVar
         embedVar.add_field(name="Manga", value=value, inline=False)
 
+    while len(embedVar) > 6000:
+        embedVar._fields = embedVar._fields[:1]
+
     return embedVar
