@@ -57,7 +57,7 @@ query ($page: Int, $perPage: Int, $search: String, $type: MediaType, $isAdult: B
           }
         }
       }
-      description(asHtml: true)
+      description(asHtml: false)
       startDate {
         year
         month
