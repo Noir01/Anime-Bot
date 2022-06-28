@@ -34,7 +34,7 @@ class Anime(commands.Cog):
         async with self.bot.session.post("https://graphql.anilist.co/", json=params) as resp:
             response = await resp.json()
         if not response["data"]["Page"]["media"]:
-            await interaction.edit_original_message("No anime found for that search.")
+            await interaction.edit_original_message(content="No anime found for that search.", view=None)
             return
         elif len(response["data"]["Page"]["media"]) == 1:
             media: dict = response["data"]["Page"]["media"][0]
