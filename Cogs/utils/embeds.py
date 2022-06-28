@@ -35,7 +35,8 @@ def get_media_embed(media: dict, trending: bool = False) -> Embed:
         else (media["title"]["english"] if media["title"]["english"] else media["title"]["native"])
     )
     if media["description"]:
-        description = newLineREG.sub("\n\n", markdownify(media["description"]))
+        # description = newLineREG.sub("\n\n", markdownify(media["description"]))
+        description = markdownify(media["description"])
         if len(description) > 4096:
             description = description[:4093] + "..."
     else:
