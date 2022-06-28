@@ -21,7 +21,7 @@ months = {
 }
 
 spoilerREG = re.compile(r"(<span class='markdown_spoiler'><span>)(.+?)(</span></span>)", re.DOTALL)
-newLineREG = re.compile(r"(\n)+")
+newLineREG = re.compile(r"(\n){2,}")
 
 
 def get_media_embed(media: dict, trending: bool = False) -> Embed:
