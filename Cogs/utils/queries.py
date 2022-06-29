@@ -1,6 +1,5 @@
 from typing import Literal
 
-
 mediaGraphQLQuery: str = """
 query ($page: Int, $perPage: Int, $search: String, $type: MediaType, $isAdult: Boolean) {
   Page(page: $page, perPage: $perPage) {

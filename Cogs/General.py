@@ -1,15 +1,14 @@
 from typing import Literal, Optional, Union
 
 import discord
-from discord import AllowedMentions, Member, User
-from psycopg import AsyncCursor
 import psycopg_pool
-from discord import Interaction, app_commands
+from discord import AllowedMentions, Interaction, Member, User, app_commands
 from discord.ext import commands
+from psycopg import AsyncCursor
 from psycopg.types.json import Jsonb
 
 from .utils.buttons import Confirm, InverseConfirm
-from .utils.queries import updateGraphQLQuery, createTableSQLQueryGenerator, updateTableSQLQueryGenerator
+from .utils.queries import createTableSQLQueryGenerator, updateGraphQLQuery, updateTableSQLQueryGenerator
 
 
 class General(commands.Cog):

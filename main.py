@@ -1,14 +1,13 @@
-from logging import Handler, Formatter, LogRecord
+from logging import Formatter, Handler, LogRecord
 from os import environ
 
-import discord
 from aiohttp import ClientSession
-from requests import post
+from discord import Intents
 from discord.ext.commands import Bot
 from psycopg_pool import AsyncConnectionPool
-from discord import Intents, Object
+from requests import post
 
-from Cogs.utils.queries import createGeneralSQLQuery, createDiscordAnilistSQLQuery
+from Cogs.utils.queries import createDiscordAnilistSQLQuery, createGeneralSQLQuery
 
 # asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 # Postgres needs this to run on Windows

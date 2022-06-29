@@ -1,7 +1,7 @@
+from contextlib import redirect_stdout
 from io import StringIO
 from os import remove
 from textwrap import indent
-from contextlib import redirect_stdout
 from traceback import format_exc
 from typing import Literal, Optional
 

@@ -4,9 +4,9 @@ from discord import Interaction
 from discord.app_commands import Range, command, describe
 from discord.ext import commands
 
-from .utils.queries import characterGraphQLQuery
-from .utils.embeds import get_character_embed
 from .utils.buttons import Pagination
+from .utils.embeds import get_character_embed
+from .utils.queries import characterGraphQLQuery
 
 
 class Character(commands.Cog):
