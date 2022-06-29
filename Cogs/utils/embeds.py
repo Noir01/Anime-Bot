@@ -22,6 +22,13 @@ months = {
 
 spoilerREG = re.compile(r"(<span class='markdown_spoiler'><span>)(.+?)(</span></span>)", re.DOTALL)
 newLineREG = re.compile(r"(\n)+(\s)*(\n)+")  # Regex that targets newlines and any spaces between them.
+bracketREG = re.compile(r"\(.+?\)")
+
+relevantStaffRoles = {"Story & Art", "Art", "Story", "Original Creator", "Director", "Music"}
+
+
+def removeBrackets(string: str) -> str:
+    return bracketREG.sub("", string).strip()
 
 
 def get_media_embed(media: dict, trending: bool = False) -> Embed:
@@ -105,6 +112,12 @@ def get_media_embed(media: dict, trending: bool = False) -> Embed:
             ),
             inline=False,
         )
+    if media["staff"]["edges"]:
+        staff = []
+        for edge in media["staff"]["edges"]:
+            if removeBrackets(edge["role"]) in relevantStaffRoles:
+                staff.append(f"[{edge['node']['name']['full']}]({edge['node']['siteUrl']}) _({edge['role']})_")
+        embedVar.add_field(name="Staff", value=" | ".join(staff), inline=False)
     if media["genres"]:
         embedVar.add_field(name="Genres", value=" · ".join(media["genres"]), inline=False)
     if media["synonyms"]:

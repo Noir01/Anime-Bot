@@ -54,6 +54,7 @@ query ($page: Int, $perPage: Int, $search: String, $type: MediaType, $isAdult: B
             }
             siteUrl
           }
+          role
         }
       }
       description(asHtml: false)
