@@ -7,11 +7,11 @@ from typing import Literal, Optional
 
 from discord import File, Object
 from discord.errors import HTTPException
-from discord.ext.commands import Cog, Context, ExtensionError, Greedy, bot, command, group, is_owner
+from discord.ext.commands import Bot, Cog, Context, ExtensionError, Greedy, command, group, is_owner
 
 
 class Mod(Cog):
-    def __init__(self, bot: bot) -> None:
+    def __init__(self, bot: Bot) -> None:
         self.bot = bot
         self._last_result = None
 
