@@ -162,7 +162,7 @@ def get_media_list_embed(mediaList: list[dict[str, str]], user: Union[Member, Us
         if media["episodes"] and (media["format"] not in {"OVA", "MOVIE", "MUSIC"}):
             value += str(media["episodes"]) + " episodes · "
         if media["format"]:
-            value += media["format"].capitalize() if media["format"] == "MOVIE" else media["format"]
+            value += media["format"] if media["format"] in ("OVA", "ONA", "TV") else media["format"].capitalize()
         if media["chapters"]:
             value += " · " + str(media["chapters"]) + " chapters"
         if media["volumes"]:
