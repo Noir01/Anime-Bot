@@ -34,6 +34,10 @@ query ($page: Int, $perPage: Int, $search: String, $type: MediaType, $isAdult: B
       }
       format
       episodes
+      nextAiringEpisode {
+        episode
+        airingAt
+      }
       duration
       siteUrl
       trending

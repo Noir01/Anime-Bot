@@ -60,6 +60,10 @@ def get_media_embed(media: dict, trending: bool = False) -> Embed:
         )
     if media["episodes"] and (media["episodes"] > 1):
         embedVar.add_field(name="Episodes", value=media["episodes"])
+    if media["status"] == "RELEASING" and media["nextAiringEpisode"]:
+        embedVar.add_field(
+            name="Airing", value=f"Ep {media['nextAiringEpisode']['episode']}: <t:{media['nextAiringEpisode']['airingAt']}:R>"
+        )
     if media["duration"]:
         embedVar.add_field(
             name="Average runtime" if media["format"] not in {"MOVIE", "MUSIC"} else "Runtime", value=f"{media['duration']} minutes"
