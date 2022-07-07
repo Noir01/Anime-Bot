@@ -56,7 +56,7 @@ def get_media_embed(media: dict, trending: bool = False) -> Embed:
         embedVar.set_image(url=media["bannerImage"])
     if media["format"]:
         embedVar.add_field(
-            name="Format", value=(media["format"] if media["format"] in ("OVA", "TV") else media["format"].capitalize())
+            name="Format", value=(media["format"] if media["format"] in ("OVA", "ONA", "TV") else media["format"].capitalize())
         )
     if media["episodes"] and (media["episodes"] > 1):
         embedVar.add_field(name="Episodes", value=media["episodes"])
