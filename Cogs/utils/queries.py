@@ -3,19 +3,11 @@ from typing import Literal
 mediaGraphQLQuery: str = """
 query ($page: Int, $perPage: Int, $search: String, $type: MediaType, $isAdult: Boolean) {
   Page(page: $page, perPage: $perPage) {
-    pageInfo {
-      total
-      currentPage
-      lastPage
-      hasNextPage
-      perPage
-    }
     media(search: $search, type: $type, sort: POPULARITY_DESC, isAdult: $isAdult) {
       id
       title {
         romaji
         english
-        native
       }
       siteUrl
       isAdult
@@ -49,12 +41,7 @@ query ($page: Int, $perPage: Int, $search: String, $type: MediaType, $isAdult: B
         edges {
           node {
             name {
-              first
-              middle
-              last
               full
-              native
-              userPreferred
             }
             siteUrl
           }
