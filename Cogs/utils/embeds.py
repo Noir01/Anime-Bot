@@ -130,7 +130,7 @@ def get_media_embed(media: dict, trending: bool = False) -> Embed:
         tags = list()
         for tag in media["tags"]:
             if not tag["isMediaSpoiler"]:
-                if tag["rank"] > 25:
+                if tag["rank"] > 25 or len(media["tags"]) <= 10:
                     tags.append(tag["name"])
         embedVar.add_field(name="Tags", value=" · ".join(tags[:15]), inline=False)
     embedVar.set_footer(
