@@ -125,13 +125,7 @@ def get_media_embed(media: dict, trending: bool = False) -> Embed:
     if media["genres"]:
         embedVar.add_field(name="Genres", value=" · ".join(media["genres"]), inline=False)
     if media["synonyms"]:
-        embedVar.add_field(
-            name="Synonyms",
-            value=" | ".join(
-                (media["synonyms"].insert(0, media["title"]["english"]) if media["title"]["english"] else media["synonyms"])[:5]
-            ),
-            inline=False,
-        )
+        embedVar.add_field(name="Synonyms", value=" | ".join(media["synonyms"][:5]), inline=False)
     if media["tags"]:
         tags = list()
         for tag in media["tags"]:
