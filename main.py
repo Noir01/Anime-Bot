@@ -10,7 +10,7 @@ from requests import post
 from Cogs.utils.queries import createDiscordAnilistSQLQuery, createGeneralSQLQuery
 
 # asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-# Postgres needs this to run on Windows
+# Psycopg needs this to run on Windows asynchronously.
 
 
 class WebhookHandler(Handler):
