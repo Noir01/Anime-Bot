@@ -2,13 +2,14 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from discord import Colour, Interaction
-from discord.app_commands import Range, command, describe
+from discord.app_commands import Choice, Range, command, describe
 from discord.ext import commands
 from discord.ui import View
 
 from .utils.buttons import NumberedButton
 from .utils.embeds import get_media_embed, get_media_list_embed
 from .utils.queries import mediaGraphQLQuery, trendingGraphQLQuery
+from .utils.tags import adultTags, normalTags
 
 
 class Anime(commands.Cog):
@@ -23,11 +24,24 @@ class Anime(commands.Cog):
             self.trending.add(media["id"] for media in ((await resp.json())["data"]["Trending"]["media"]))
 
     @command(name="anime", description="Searches for an anime with provided name using the Anilist API.")
-    @describe(name="The name of the anime to search for.", limit="The number of results to return. Defaults to 10.")
-    async def _anime(self, interaction: Interaction, name: str, limit: Optional[Range[int, 1, 25]] = 10) -> None:
+    @describe(
+        name="The name of the anime to search for. Can be left blank if tags are provided.",
+        tags="Tags to filter results by. Split multiple tags with a comma.",
+        limit="The number of results to return. Defaults to 10.",
+    )
+    async def _anime(
+        self, interaction: Interaction, name: str = None, tags: str = None, limit: Optional[Range[int, 1, 25]] = 10
+    ) -> None:
+        if name is None and tags is None:
+            await interaction.response.send_message("You must provide a name and/or tags to search for.", ephemeral=True)
+            return
         await interaction.response.defer()
         query = mediaGraphQLQuery
-        variables = {"search": name, "perPage": limit, "page": 1, "type": "ANIME"}
+        variables = {"perPage": limit, "page": 1, "type": "ANIME"}
+        if name is not None:
+            variables["search"] = name
+        if tags is not None:
+            variables["tags"] = [i.strip().capitalize() for i in tags.split(",")]
         params = {"query": query, "variables": variables}
         if not interaction.channel.is_nsfw():
             params["variables"]["isAdult"] = False
@@ -62,6 +76,18 @@ class Anime(commands.Cog):
                 await self.updateTrending()
             mainEmbedVar = get_media_embed(media=media, trending=(media["id"] in self.trending))
             await interaction.edit_original_message(embed=mainEmbedVar, content=None, view=None)
+
+    @_anime.autocomplete("tags")
+    async def _anime_autocomplete(self, interaction: Interaction, tags: str) -> list[Choice[str]]:
+        incompleteTag = tags.split(",")[-1].strip()
+        completeTags = []
+        for tag in normalTags if not interaction.channel.is_nsfw() else adultTags:
+            if incompleteTag.lower() in tag.lower():
+                result = (
+                    tag if tags.count(",") == 0 else ", ".join([i.strip().capitalize() for i in tags.split(",")[:-1]]) + ", " + tag
+                )
+                completeTags.append(Choice(name=result, value=result))
+        return completeTags[:25]
 
 
 async def setup(bot: commands.Bot):
