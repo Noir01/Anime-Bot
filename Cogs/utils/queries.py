@@ -3,7 +3,7 @@ from typing import Literal
 mediaGraphQLQuery: str = """
 query ($page: Int, $perPage: Int, $search: String, $type: MediaType, $isAdult: Boolean, $tags: [String]) {
   Page(page: $page, perPage: $perPage) {
-    media(search: $search, type: $type, sort: POPULARITY_DESC, isAdult: $isAdult, tag_in: $tags) {
+    media(search: $search, type: $type, sort: POPULARITY_DESC, isAdult: $isAdult, tag_in: $tags, minimumTagRank: 25) {
       id
       title {
         romaji
