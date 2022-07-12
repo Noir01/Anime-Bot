@@ -197,7 +197,7 @@ def get_character_embed(character: dict, user: Union[Member, User]) -> Embed:
     embedVar.description = description
     if character["name"]["alternative"]:
         embedVar.add_field(
-            name="Alternative names", value=" | ".join([character["name"]["native"]] + character["name"]["alternative"]), inline=False
+            name="Alternative names", value=" | ".join(character["name"]["alternative"]), inline=False
         )
     if character["gender"]:
         embedVar.add_field(name="Gender", value=character["gender"])
