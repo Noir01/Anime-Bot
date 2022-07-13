@@ -4,6 +4,7 @@ from os import environ
 from aiohttp import ClientSession
 from discord import Intents
 from discord.ext.commands import Bot
+from discord.utils import escape_markdown
 from psycopg_pool import AsyncConnectionPool
 from requests import post
 
@@ -16,7 +17,7 @@ from Cogs.utils.queries import createDiscordAnilistSQLQuery, createGeneralSQLQue
 class WebhookHandler(Handler):
     def emit(self, record: LogRecord) -> None:
         logEntry = self.format(record)
-        return post(url=environ["WEBHOOK_URL"], json={"content": logEntry})
+        return post(url=environ["WEBHOOK_URL"], json={"content": escape_markdown(logEntry)})
 
 
 class WebhookFormatter(Formatter):
