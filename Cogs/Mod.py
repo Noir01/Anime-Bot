@@ -9,6 +9,8 @@ from discord import File, Object
 from discord.errors import HTTPException
 from discord.ext.commands import Bot, Cog, Context, ExtensionError, Greedy, command, group, is_owner
 
+from Cogs.utils.queries import createDiscordAnilistSQLQuery, createGeneralSQLQuery
+
 
 class Mod(Cog):
     def __init__(self, bot: Bot) -> None:
@@ -34,6 +36,14 @@ class Mod(Cog):
                         remove("result.txt")
                 except BaseException:
                     await ctx.send(format_exc())
+
+    @command(name="prepare", hidden=True)
+    @is_owner()
+    async def _prepare(self, ctx: Context) -> None:
+        async with self.bot.pool.connection() as conn:
+            async with conn.cursor() as curr:
+                await curr.execute(createGeneralSQLQuery)
+                await curr.execute(createDiscordAnilistSQLQuery)
 
     @command(hidden=True)
     @is_owner()

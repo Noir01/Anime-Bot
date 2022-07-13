@@ -8,8 +8,6 @@ from discord.utils import escape_markdown
 from psycopg_pool import AsyncConnectionPool
 from requests import post
 
-from Cogs.utils.queries import createDiscordAnilistSQLQuery, createGeneralSQLQuery
-
 # asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 # Psycopg needs this to run on Windows asynchronously.
 
@@ -33,10 +31,6 @@ class Animebot(Bot):
     async def setup_hook(self):
         self.session = ClientSession()
         self.pool = AsyncConnectionPool(conninfo=environ["DATABASE_URL"])
-        async with self.pool.connection() as conn:
-            async with conn.cursor() as curr:
-                await curr.execute(createGeneralSQLQuery)
-                await curr.execute(createDiscordAnilistSQLQuery)
         for ext in self.initial_extensions:
             await self.load_extension(ext)
 
