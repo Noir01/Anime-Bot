@@ -196,9 +196,7 @@ def get_character_embed(character: dict, user: Union[Member, User]) -> Embed:
         description = "_No description available._"
     embedVar.description = description
     if character["name"]["alternative"]:
-        embedVar.add_field(
-            name="Alternative names", value=" | ".join(character["name"]["alternative"]), inline=False
-        )
+        embedVar.add_field(name="Alternative names", value=" | ".join(character["name"]["alternative"]), inline=False)
     if character["gender"]:
         embedVar.add_field(name="Gender", value=character["gender"])
     if character["dateOfBirth"]["month"] and character["dateOfBirth"]["day"]:
