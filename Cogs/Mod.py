@@ -44,6 +44,7 @@ class Mod(Cog):
             async with conn.cursor() as curr:
                 await curr.execute(createGeneralSQLQuery)
                 await curr.execute(createDiscordAnilistSQLQuery)
+        await ctx.send("Prepared the database.")
 
     @command(hidden=True)
     @is_owner()
