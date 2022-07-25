@@ -1,6 +1,4 @@
 from typing import Literal, Optional, Union
-
-import discord
 import psycopg_pool
 from discord import AllowedMentions, Interaction, Member, User, app_commands
 from discord.ext import commands
@@ -29,7 +27,8 @@ class General(commands.Cog):
             elif tableTuple[0].startswith("m"):
                 self.existingMangaTables.add(tableTuple[0])
 
-    async def find_(self, userId: int, curr: AsyncCursor) -> Optional[int]:
+    @staticmethod
+    async def find_(userId: int, curr: AsyncCursor) -> Optional[int]:
         """
         Returns the anilist id of the user with the given discord id, or None if no user with the given id exists and vice versa.
         """
@@ -49,29 +48,28 @@ class General(commands.Cog):
                 return result[0]
 
     async def update_(self, _list: str, discordId: int, anilistId: int, pool: psycopg_pool.AsyncConnectionPool, force: bool) -> bool:
-        async with pool.connection() as conn:
-            async with conn.cursor() as curr:
-                query = updateGraphQLQuery
-                mlist = []
-                nextPage = True
-                page = 1
-                while nextPage:
-                    variables = {"id": anilistId, "page": page, "perPage": 50, "type": _list.upper()}
-                    async with self.bot.session.post(
-                        "https://graphql.anilist.co", json={"query": query, "variables": variables}
-                    ) as resp:
-                        response = await resp.json()
-                    if force:
-                        nextPage = response["data"]["Page"]["pageInfo"]["hasNextPage"]
-                    else:
-                        nextPage = False
-                    mlist += response["data"]["Page"]["mediaList"]
-                    page += 1
-                # Not really sure what this does but it was in the original code
-                mlist = [x for n, x in enumerate(mlist) if x not in mlist[:n]]
-                if _list == "Anime":
-                    if not self.existingAnimeTables:
-                        await self.updateExistingTables_(curr)
+        async with pool.connection() as conn, conn.cursor() as curr:
+            query = updateGraphQLQuery
+            mlist = []
+            nextPage = True
+            page = 1
+            while nextPage:
+                variables = {"id": anilistId, "page": page, "perPage": 50, "type": _list.upper()}
+                async with self.bot.session.post(
+                    "https://graphql.anilist.co", json={"query": query, "variables": variables}
+                ) as resp:
+                    response = await resp.json()
+                if force:
+                    nextPage = response["data"]["Page"]["pageInfo"]["hasNextPage"]
+                else:
+                    nextPage = False
+                mlist += response["data"]["Page"]["mediaList"]
+                page += 1
+            # Not really sure what this does but it was in the original code
+            mlist = [x for n, x in enumerate(mlist) if x not in mlist[:n]]
+            if _list == "Anime":
+                if not self.existingAnimeTables:
+                    await self.updateExistingTables_(curr)
 
                     anime = set()
                     for media in mlist:
@@ -183,14 +181,8 @@ query ($name: String, $page: Int, $perPage: Int) {
             await interaction.response.send_message("No matching Anilist account found.")
             return
         user = users[0]
-        async with self.bot.pool.connection() as conn:
-            async with conn.cursor() as curr:
-                if await self.find_(user["id"], curr):
-                    await interaction.response.send_message(
-                        f"[{user['name']}](https://anilist.co/user/{user['name']}) is already registered under another discord account."
-                    )
-                    return
-                view = Confirm(user=interaction.user)
+        async with self.bot.pool.connection() as conn, conn.cursor() as curr:
+            if await self.find_(user["id"], curr):
                 await interaction.response.send_message(
                     content=f"Is [{user['name']}]({user['siteUrl']}) the account you want to link?", view=view
                 )
@@ -219,19 +211,18 @@ query ($name: String, $page: Int, $perPage: Int) {
 
     @app_commands.command(name="unset", description="Unlinks your Anilist profile from your Discord profile.")
     async def _unset(self, interaction: Interaction) -> None:
-        async with self.bot.pool.connection() as conn:
-            async with conn.cursor() as curr:
-                if not await self.find_(interaction.user.id, curr):
-                    await interaction.response.send_message("You are not linked to any Anilist account.")
-                    return
-                view = InverseConfirm(user=interaction.user)
-                await interaction.response.send_message("Are you sure you want to unlink your Anilist account?", view=view)
-                if not await view.wait():
-                    if view.value:
-                        await curr.execute(f"DELETE FROM discord_anilist WHERE discord={interaction.user.id}")
-                        await interaction.edit_original_message(content="Successfully unlinked your Anilist account.", view=None)
-                    else:
-                        await interaction.edit_original_message(content="Operation aborted.", view=None)
+        async with self.bot.pool.connection() as conn, conn.cursor() as curr:
+            if not await self.find_(interaction.user.id, curr):
+                await interaction.response.send_message("You are not linked to any Anilist account.")
+                return
+            view = InverseConfirm(user=interaction.user)
+            await interaction.response.send_message("Are you sure you want to unlink your Anilist account?", view=view)
+            if not await view.wait():
+                if view.value:
+                    await curr.execute(f"DELETE FROM discord_anilist WHERE discord={interaction.user.id}")
+                    await interaction.edit_original_message(content="Successfully unlinked your Anilist account.", view=None)
+                else:
+                    await interaction.edit_original_message(content="Operation aborted.", view=None)
 
     @app_commands.command(name="update", description="Updates the bot's database.")
     @app_commands.rename(_list="list")
@@ -250,9 +241,8 @@ query ($name: String, $page: Int, $perPage: Int) {
         await interaction.response.defer()
         if user is None:
             user = interaction.user
-        async with self.bot.pool.connection() as conn:
-            async with conn.cursor() as curr:
-                anilistID = await self.find_(user.id, curr)
+        async with self.bot.pool.connection() as conn, conn.cursor() as curr:
+            anilistID = await self.find_(user.id, curr)
 
                 if anilistID is None:
                     await interaction.followup.send(
