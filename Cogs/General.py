@@ -27,7 +27,8 @@ class General(commands.Cog):
             elif tableTuple[0].startswith("m"):
                 self.existingMangaTables.add(tableTuple[0])
 
-    async def find_(self, userId: int, curr: AsyncCursor) -> Optional[int]:
+    @staticmethod
+    async def find_(userId: int, curr: AsyncCursor) -> Optional[int]:
         """
         Returns the anilist id of the user with the given discord id, or None if no user with the given id exists and vice versa.
         """
