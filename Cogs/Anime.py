@@ -53,7 +53,7 @@ class Anime(commands.Cog):
         if not response["data"]["Page"]["media"]:
             await interaction.edit_original_message(content="No anime found for that search.", view=None)
             return
-        elif len(response["data"]["Page"]["media"]) == 1:
+        if len(response["data"]["Page"]["media"]) == 1:
             media: dict = response["data"]["Page"]["media"][0]
             if (not self.trending) or datetime.now() - self.last_updated > timedelta(hours=1):
                 await self.updateTrending()
