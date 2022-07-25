@@ -1,6 +1,4 @@
 from typing import Literal, Optional, Union
-
-import discord
 import psycopg_pool
 from discord import AllowedMentions, Interaction, Member, User, app_commands
 from discord.ext import commands
