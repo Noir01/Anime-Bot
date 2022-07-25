@@ -9,7 +9,7 @@ from discord.ui import View
 from .utils.buttons import NumberedButton
 from .utils.embeds import get_media_embed, get_media_list_embed
 from .utils.queries import mediaGraphQLQuery, trendingGraphQLQuery
-from .utils.tags import adultTags, normalTags
+from .utils.autocomplete import tag_autocomplete
 
 
 class Anime(commands.Cog):
@@ -79,15 +79,7 @@ class Anime(commands.Cog):
 
     @_anime.autocomplete("tags")
     async def _anime_autocomplete(self, interaction: Interaction, tags: str) -> list[Choice[str]]:
-        incompleteTag = tags.split(",")[-1].strip()
-        completeTags = []
-        for tag in normalTags if not interaction.channel.is_nsfw() else adultTags:
-            if incompleteTag.lower() in tag.lower():
-                result = (
-                    tag if tags.count(",") == 0 else ", ".join([i.strip().capitalize() for i in tags.split(",")[:-1]]) + ", " + tag
-                )
-                completeTags.append(Choice(name=result, value=result))
-        return completeTags[:25]
+        return await tag_autocomplete(interaction, tags)
 
 
 async def setup(bot: commands.Bot):
