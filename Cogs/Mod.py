@@ -110,7 +110,8 @@ class Mod(Cog):
 
         await ctx.send(f"Synced the tree to {fmt}/{len(guilds)} guilds.")
 
-    def cleanup_code(self, content: str) -> str:
+    @staticmethod
+    def cleanup_code(content: str) -> str:
         """Automatically removes code blocks from the code."""
         # remove ```py\n```
         content = content.replace("```", "\n```")
