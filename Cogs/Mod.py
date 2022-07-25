@@ -21,8 +21,11 @@ class Mod(Cog):
     @is_owner()
     async def _sqlexecute(self, ctx: Context, *, sql_query: str) -> None:
         await ctx.channel.typing()
-        async with self.bot.pool.connection() as conn:
-            async with conn.cursor() as curr:
+        async with self.bot.pool.connection() as conn, conn.cursor() as curr:
+            try:
+                await curr.execute(sql_query)
+                await ctx.send("Query executed.")
+                result = str(await curr.fetchall())
                 try:
                     await curr.execute(sql_query)
                     await ctx.send("Query executed.")
@@ -40,10 +43,9 @@ class Mod(Cog):
     @command(name="prepare", hidden=True)
     @is_owner()
     async def _prepare(self, ctx: Context) -> None:
-        async with self.bot.pool.connection() as conn:
-            async with conn.cursor() as curr:
-                await curr.execute(createGeneralSQLQuery)
-                await curr.execute(createDiscordAnilistSQLQuery)
+        async with self.bot.pool.connection() as conn, conn.cursor() as curr:
+            await curr.execute(createGeneralSQLQuery)
+            await curr.execute(createDiscordAnilistSQLQuery)
         await ctx.send("Prepared the database.")
 
     @command(hidden=True)
