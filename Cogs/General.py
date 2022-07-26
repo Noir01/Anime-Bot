@@ -244,15 +244,15 @@ query ($name: String, $page: Int, $perPage: Int) {
         async with self.bot.pool.connection() as conn, conn.cursor() as curr:
             anilistID = await self.find_(user.id, curr)
 
-                if anilistID is None:
-                    await interaction.followup.send(
-                        content=f"{user.mention} is not linked to any Anilist account. Use `/set` to link one.",
-                        allowed_mentions=AllowedMentions.none(),
-                    )
-                    return
+            if anilistID is None:
+                await interaction.followup.send(
+                    content=f"{user.mention} is not linked to any Anilist account. Use `/set` to link one.",
+                    allowed_mentions=AllowedMentions.none(),
+                )
+                return
 
-                if await self.update_(_list=_list, discordId=user.id, anilistId=anilistID, force=force, pool=self.bot.pool):
-                    await interaction.followup.send("Successfully updated your list.")
+            if await self.update_(_list=_list, discordId=user.id, anilistId=anilistID, force=force, pool=self.bot.pool):
+                await interaction.followup.send("Successfully updated your list.")
 
 
 async def setup(bot):
