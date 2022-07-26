@@ -27,18 +27,14 @@ class Mod(Cog):
                 await ctx.send("Query executed.")
                 result = str(await curr.fetchall())
                 try:
-                    await curr.execute(sql_query)
-                    await ctx.send("Query executed.")
-                    result = str(await curr.fetchall())
-                    try:
-                        await ctx.send("Result:\n```" + result + "```")
-                    except HTTPException:
-                        with open("result.txt", "w") as f:
-                            f.write(result)
-                        await ctx.send(content="Result:\n", file=File("result.txt"))
-                        remove("result.txt")
-                except BaseException:
-                    await ctx.send(format_exc())
+                    await ctx.send("Result:\n```" + result + "```")
+                except HTTPException:
+                    with open("result.txt", "w") as f:
+                        f.write(result)
+                    await ctx.send(content="Result:\n", file=File("result.txt"))
+                    remove("result.txt")
+            except BaseException:
+                await ctx.send(format_exc())
 
     @command(name="prepare", hidden=True)
     @is_owner()
