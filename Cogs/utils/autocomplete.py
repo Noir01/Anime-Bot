@@ -1,7 +1,7 @@
 from discord import Interaction
 from discord.app_commands import Choice
 
-from tags import adultTags, normalTags
+from .tags import adultTags, normalTags
 
 
 async def tag_autocomplete(interaction: Interaction, tags: str) -> list[Choice[str]]:
