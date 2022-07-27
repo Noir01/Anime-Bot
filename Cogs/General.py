@@ -220,35 +220,41 @@ query ($name: String, $page: Int, $perPage: Int) {
         async with self.bot.pool.connection() as conn, conn.cursor() as curr:
             if await self.find_(user["id"], curr):
                 await interaction.response.send_message(
-                    content=f"Is [{user['name']}]({user['siteUrl']}) the account you want to link?", view=view
+                    f"[{user['name']}](https://anilist.co/user/{user['name']}) is already registered under another discord account."
                 )
+                return
 
-                if not await view.wait():
-                    if view.value:
-                        await curr.execute("DELETE FROM discord_anilist WHERE discord=%s", (interaction.user.id,))
-                        await curr.execute(
-                            "INSERT INTO discord_anilist (discord, anilist) VALUES (%s, %s)", (interaction.user.id, user["id"])
-                        )
+            view = Confirm(user=interaction.user)
+            await interaction.response.send_message(
+                content=f"Is [{user['name']}]({user['siteUrl']}) the account you want to link?", view=view
+            )
 
-                        p = await interaction.edit_original_message(
-                            content=f"Successfully registered [{user['name']}](https://anilist.co/user/{user['name']}).\nNow adding you to the database.",
-                            view=None,
-                        )
+            if not await view.wait():
+                if view.value:
+                    await curr.execute("DELETE FROM discord_anilist WHERE discord=%s", (interaction.user.id,))
+                    await curr.execute(
+                        "INSERT INTO discord_anilist (discord, anilist) VALUES (%s, %s)", (interaction.user.id, user["id"])
+                    )
 
-                        await self.update_(
-                            _list="Anime", discordId=interaction.user.id, anilistId=user["id"], pool=self.bot.pool, force=True
-                        )
-                        await self.update_(
-                            _list="Manga", discordId=interaction.user.id, anilistId=user["id"], pool=self.bot.pool, force=True
-                        )
+                    p = await interaction.edit_original_message(
+                        content=f"Successfully registered [{user['name']}](https://anilist.co/user/{user['name']}).\nNow adding you to the database.",
+                        view=None,
+                    )
 
-                        await p.edit(
-                            content="Successfully registered [{user['name']}](https://anilist.co/user/{user['name']}).\nSuccessfully added you to the database.",
-                            view=None,
-                        )
+                    await self.update_(
+                        _list="Anime", discordId=interaction.user.id, anilistId=user["id"], pool=self.bot.pool, force=True
+                    )
+                    await self.update_(
+                        _list="Manga", discordId=interaction.user.id, anilistId=user["id"], pool=self.bot.pool, force=True
+                    )
 
-                    else:
-                        await interaction.edit_original_message(content="Please try again with your username.", view=None)
+                    await p.edit(
+                        content="Successfully registered [{user['name']}](https://anilist.co/user/{user['name']}).\nSuccessfully added you to the database.",
+                        view=None,
+                    )
+
+                else:
+                    await interaction.edit_original_message(content="Please try again with your username.", view=None)
 
     @app_commands.command(name="unset", description="Unlinks your Anilist profile from your Discord profile.")
     async def _unset(self, interaction: Interaction) -> None:
