@@ -1,4 +1,5 @@
 from typing import Literal, Optional, Union
+
 import psycopg_pool
 from discord import AllowedMentions, Interaction, Member, User, app_commands
 from discord.ext import commands
@@ -21,9 +22,11 @@ class General(commands.Cog):
         """
         await curr.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'")
         result = await curr.fetchall()
+
         for tableTuple in result:
             if tableTuple[0].startswith("a"):
                 self.existingAnimeTables.add(tableTuple[0])
+
             elif tableTuple[0].startswith("m"):
                 self.existingMangaTables.add(tableTuple[0])
 
@@ -35,13 +38,16 @@ class General(commands.Cog):
         if len(str(id)) > 15:
             await curr.execute(f"SELECT anilist from discord_anilist WHERE discord={userId}")
             result = await curr.fetchone()
+
             if not result:
                 return
             else:
                 return result[0]
+
         else:
             await curr.execute(f"SELECT discord from discord_anilist WHERE anilist={userId}")
             result = await curr.fetchone()
+
             if not result:
                 return
             else:
@@ -53,29 +59,36 @@ class General(commands.Cog):
             mlist = []
             nextPage = True
             page = 1
+
             while nextPage:
                 variables = {"id": anilistId, "page": page, "perPage": 50, "type": _list.upper()}
-                async with self.bot.session.post(
-                    "https://graphql.anilist.co", json={"query": query, "variables": variables}
-                ) as resp:
+
+                async with self.bot.session.post("https://graphql.anilist.co", json={"query": query, "variables": variables}) as resp:
                     response = await resp.json()
+
                 if force:
                     nextPage = response["data"]["Page"]["pageInfo"]["hasNextPage"]
                 else:
                     nextPage = False
+
                 mlist += response["data"]["Page"]["mediaList"]
                 page += 1
+
             # Not really sure what this does but it was in the original code
             mlist = [x for n, x in enumerate(mlist) if x not in mlist[:n]]
+
             if _list == "Anime":
                 if not self.existingAnimeTables:
                     await self.updateExistingTables_(curr)
 
                     anime = set()
+
                     for media in mlist:
                         anime.add("a" + str(media["mediaId"]))
+
                         if ("a" + str(media["mediaId"])) not in self.existingAnimeTables:
                             await curr.execute(createTableSQLQueryGenerator(type_="Anime", name="a" + str(media["mediaId"])))
+
                         await curr.execute(
                             updateTableSQLQueryGenerator(type_="Anime", name="a" + str(media["mediaId"])),
                             (
@@ -87,38 +100,49 @@ class General(commands.Cog):
                                 (0 if not media["media"]["episodes"] else media["media"]["episodes"]),
                             ),
                         )
+
                     await curr.execute("SELECT anime FROM general WHERE discord=%s", (discordId,))
+
                     try:
                         result = set((await curr.fetchone())[0]["anime"])
+
                         if force:
                             await curr.execute(
                                 "UPDATE general SET anime=%s WHERE discord=%s", (Jsonb({"anime": list(anime)}), discordId)
                             )
+
                             if result - anime:
                                 for table in result - anime:
                                     await curr.execute(f"DELETE FROM {table} WHERE discord=%s", (discordId,))
+
                         else:
                             if anime - result:
                                 await curr.execute(
                                     "UPDATE general SET anime=%s WHERE discord=%s", (Jsonb({"anime": list(anime | result)}), discordId)
                                 )
+
                     except TypeError:
                         await curr.execute(
                             "INSERT INTO general (discord, anilist, anime) VALUES (%s, %s, %s) ON CONFLICT (discord) DO UPDATE SET anime=EXCLUDED.anime",
                             (discordId, anilistId, Jsonb({"anime": list(anime)})),
                         )
+
                     return True
+
                 elif _list == "Manga":
                     if not self.existingMangaTables:
                         await self.updateExistingTables_(curr)
 
                     manga = set()
+
                     for media in mlist:
                         manga.add("m" + str(media["mediaId"]))
+
                         if ("m" + str(media["mediaId"])) not in self.existingMangaTables:
                             await curr.execute(
                                 await curr.execute(createTableSQLQueryGenerator(type_="Manga", name="m" + str(media["mediaId"])))
                             )
+
                         await curr.execute(
                             updateTableSQLQueryGenerator(type_="Manga", name="m" + str(media["mediaId"])),
                             (
@@ -130,22 +154,29 @@ class General(commands.Cog):
                                 (0 if not media["media"]["chapters"] else media["media"]["chapters"]),
                             ),
                         )
+
                     await curr.execute("SELECT manga FROM general WHERE discord=%s", (discordId,))
+
                     try:
                         result = set((await curr.fetchone())[0]["manga"])
+
                         if force:
                             await curr.execute(
                                 "UPDATE general SET manga=%s WHERE discord=%s", (Jsonb({"manga": list(manga)}), discordId)
                             )
+
                             if result - manga:
                                 for table in result - manga:
                                     await curr.execute(f"DELETE FROM {table} WHERE discord=%s", (discordId,))
+
                         else:
                             if manga - result:
                                 await curr.execute(
                                     "UPDATE general SET anime=%s WHERE discord=%s", (Jsonb({"manga": list(manga | result)}), discordId)
                                 )
+
                         return True
+
                     except TypeError:
                         await curr.execute(
                             "INSERT INTO general (discord, anilist, manga) VALUES (%s, %s, %s) ON CONFLICT (discord) DO UPDATE SET manga=EXCLUDED.manga",
@@ -174,38 +205,48 @@ query ($name: String, $page: Int, $perPage: Int) {
 }
     """
         variables = {"name": username, "page": 1, "perPage": 1}
+
         async with self.bot.session.post("https://graphql.anilist.co", json={"query": query, "variables": variables}) as resp:
             response = await resp.json()
+
         users = response["data"]["Page"]["users"]
+
         if not users:
             await interaction.response.send_message("No matching Anilist account found.")
             return
+
         user = users[0]
+
         async with self.bot.pool.connection() as conn, conn.cursor() as curr:
             if await self.find_(user["id"], curr):
                 await interaction.response.send_message(
                     content=f"Is [{user['name']}]({user['siteUrl']}) the account you want to link?", view=view
                 )
+
                 if not await view.wait():
                     if view.value:
                         await curr.execute("DELETE FROM discord_anilist WHERE discord=%s", (interaction.user.id,))
                         await curr.execute(
                             "INSERT INTO discord_anilist (discord, anilist) VALUES (%s, %s)", (interaction.user.id, user["id"])
                         )
+
                         p = await interaction.edit_original_message(
                             content=f"Successfully registered [{user['name']}](https://anilist.co/user/{user['name']}).\nNow adding you to the database.",
                             view=None,
                         )
+
                         await self.update_(
                             _list="Anime", discordId=interaction.user.id, anilistId=user["id"], pool=self.bot.pool, force=True
                         )
                         await self.update_(
                             _list="Manga", discordId=interaction.user.id, anilistId=user["id"], pool=self.bot.pool, force=True
                         )
+
                         await p.edit(
                             content="Successfully registered [{user['name']}](https://anilist.co/user/{user['name']}).\nSuccessfully added you to the database.",
                             view=None,
                         )
+
                     else:
                         await interaction.edit_original_message(content="Please try again with your username.", view=None)
 
@@ -215,12 +256,15 @@ query ($name: String, $page: Int, $perPage: Int) {
             if not await self.find_(interaction.user.id, curr):
                 await interaction.response.send_message("You are not linked to any Anilist account.")
                 return
+
             view = InverseConfirm(user=interaction.user)
             await interaction.response.send_message("Are you sure you want to unlink your Anilist account?", view=view)
+
             if not await view.wait():
                 if view.value:
                     await curr.execute(f"DELETE FROM discord_anilist WHERE discord={interaction.user.id}")
                     await interaction.edit_original_message(content="Successfully unlinked your Anilist account.", view=None)
+
                 else:
                     await interaction.edit_original_message(content="Operation aborted.", view=None)
 
@@ -239,8 +283,10 @@ query ($name: String, $page: Int, $perPage: Int) {
         force: Optional[bool] = False,
     ) -> None:
         await interaction.response.defer()
+
         if user is None:
             user = interaction.user
+
         async with self.bot.pool.connection() as conn, conn.cursor() as curr:
             anilistID = await self.find_(user.id, curr)
 

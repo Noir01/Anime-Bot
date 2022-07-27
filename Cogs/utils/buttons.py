@@ -27,6 +27,7 @@ class Confirm(discord.ui.View):
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user != self.user:
             return
+
         self.value = True
         self.stop()
 
@@ -49,6 +50,7 @@ class InverseConfirm(discord.ui.View):
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user != self.user:
             return
+
         self.value = True
         self.stop()
 
@@ -56,6 +58,7 @@ class InverseConfirm(discord.ui.View):
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user != self.user:
             return
+
         self.value = False
         self.stop()
 
@@ -70,14 +73,17 @@ class Pagination(discord.ui.View):
     async def format_page(self, interaction: discord.Interaction) -> None:
         if self.current_page < 0:
             self.current_page = len(self.pages) - 1
+
         elif self.current_page == len(self.pages):
             self.current_page = 0
+
         return await interaction.response.edit_message(embed=self.pages[self.current_page])
 
     @discord.ui.button(label="⬅️", style=discord.ButtonStyle.gray)
     async def previous(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
         if interaction.user != self.user:
             return
+
         self.current_page -= 1
         await self.format_page(interaction)
 
@@ -85,5 +91,6 @@ class Pagination(discord.ui.View):
     async def forward(self, interaction: discord.Interaction, button: discord.ui.Button) -> None:
         if interaction.user != self.user:
             return
+
         self.current_page += 1
         await self.format_page(interaction)

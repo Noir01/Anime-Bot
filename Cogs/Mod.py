@@ -21,18 +21,24 @@ class Mod(Cog):
     @is_owner()
     async def _sqlexecute(self, ctx: Context, *, sql_query: str) -> None:
         await ctx.channel.typing()
+
         async with self.bot.pool.connection() as conn, conn.cursor() as curr:
             try:
                 await curr.execute(sql_query)
+
                 await ctx.send("Query executed.")
+
                 result = str(await curr.fetchall())
                 try:
                     await ctx.send("Result:\n```" + result + "```")
+
                 except HTTPException:
                     with open("result.txt", "w") as f:
                         f.write(result)
+
                     await ctx.send(content="Result:\n", file=File("result.txt"))
                     remove("result.txt")
+
             except BaseException:
                 await ctx.send(format_exc())
 
@@ -42,6 +48,7 @@ class Mod(Cog):
         async with self.bot.pool.connection() as conn, conn.cursor() as curr:
             await curr.execute(createGeneralSQLQuery)
             await curr.execute(createDiscordAnilistSQLQuery)
+
         await ctx.send("Prepared the database.")
 
     @command(hidden=True)
@@ -50,8 +57,10 @@ class Mod(Cog):
         """Loads a module."""
         try:
             await self.bot.load_extension(module)
+
         except ExtensionError as e:
             await ctx.send(f"{e.__class__.__name__}: {e}")
+
         else:
             await ctx.send("\N{OK HAND SIGN}")
 
@@ -61,8 +70,10 @@ class Mod(Cog):
         """Unloads a module."""
         try:
             await self.bot.unload_extension(module)
+
         except ExtensionError as e:
             await ctx.send(f"{e.__class__.__name__}: {e}")
+
         else:
             await ctx.send("\N{OK HAND SIGN}")
 
@@ -72,8 +83,10 @@ class Mod(Cog):
         """Reloads a module."""
         try:
             await self.bot.reload_extension(module)
+
         except ExtensionError as e:
             await ctx.send(f"{e.__class__.__name__}: {e}")
+
         else:
             await ctx.send("\N{OK HAND SIGN}")
 
@@ -88,9 +101,11 @@ class Mod(Cog):
         if not guilds:
             if spec == "~":
                 fmt = await self.bot.tree.sync(guild=ctx.guild)
+
             elif spec == "*":
                 self.bot.tree.copy_global_to(guild=ctx.guild)
                 fmt = await self.bot.tree.sync(guild=ctx.guild)
+
             else:
                 fmt = await self.bot.tree.sync()
 
