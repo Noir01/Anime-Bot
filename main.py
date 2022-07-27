@@ -26,7 +26,7 @@ class WebhookFormatter(Formatter):
 class Animebot(Bot):
     def __init__(self):
         super().__init__(command_prefix=",", intents=Intents.default(), application_id=807048421500387329)
-        self.initial_extensions = ["Cogs.General", "Cogs.Mod", "Cogs.Anime", "Cogs.Manga", "Cogs.Character"]
+        self.initial_extensions = ["Cogs.Mod", "Cogs.Anime", "Cogs.Manga", "Cogs.Character"]
 
     async def setup_hook(self):
         self.session = ClientSession()
