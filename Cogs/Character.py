@@ -26,7 +26,7 @@ class Character(commands.Cog):
             if not resp.status == 200:
                 await interaction.edit_original_message(content="An error occurred while searching for anime.")
                 return
-    
+
             response = await resp.json()
 
         if len(response["data"]["Page"]["characters"]) == 0:

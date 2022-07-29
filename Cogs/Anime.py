@@ -35,7 +35,7 @@ class Anime(commands.Cog):
         if name is None and tags is None:
             await interaction.response.send_message("You must provide a name and/or tags to search for.", ephemeral=True)
             return
-        
+
         await interaction.response.defer()
 
         query = mediaGraphQLQuery
@@ -47,14 +47,14 @@ class Anime(commands.Cog):
         params = {"query": query, "variables": variables}
         if not interaction.channel.is_nsfw():
             params["variables"]["isAdult"] = False
-        
+
         async with self.bot.session.post("https://graphql.anilist.co/", json=params) as resp:
             if not resp.status == 200:
                 await interaction.edit_original_message(content="An error occurred while searching for anime.")
                 return
-            
+
             response = await resp.json()
-        
+
         if not response["data"]["Page"]["media"]:
             await interaction.edit_original_message(content="No anime found for that search.", view=None)
             return
