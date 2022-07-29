@@ -143,7 +143,8 @@ def get_media_embed(media: dict, trending: bool = False) -> Embed:
         for edge in media["staff"]["edges"]:
             if removeBrackets(edge["role"]) in relevantStaffRoles:
                 staff.append(f"[{edge['node']['name']['full']}]({edge['node']['siteUrl']}) _({edge['role']})_")
-        embedVar.add_field(name="Staff", value=" | ".join(staff), inline=False)
+        if staff:
+            embedVar.add_field(name="Staff", value=" | ".join(staff), inline=False)
 
     if media["genres"]:
         embedVar.add_field(name="Genres", value=" · ".join(media["genres"]), inline=False)
