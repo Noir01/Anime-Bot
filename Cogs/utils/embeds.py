@@ -24,7 +24,7 @@ spoilerREG = re.compile(r"(<span class='markdown_spoiler'><span>)(.+?)(</span></
 newLineREG = re.compile(r"(\n)+(\s)*(\n)+")  # Regex that targets newlines and any spaces between them.
 bracketREG = re.compile(r"\(.+?\)")
 
-relevantStaffRoles = {"Story & Art", "Art", "Story", "Original Creator", "Director", "Music"}
+relevantStaffRoles = {"Story & Art", "Art", "Story", "Original Creator", "Director", "Music", "Original Story"}
 
 
 def removeBrackets(string: str) -> str:
