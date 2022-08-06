@@ -249,7 +249,7 @@ query ($name: String, $page: Int, $perPage: Int) {
                     )
 
                     await p.edit(
-                        content="Successfully registered [{user['name']}](https://anilist.co/user/{user['name']}).\nSuccessfully added you to the database.",
+                        content=f"Successfully registered [{user['name']}](https://anilist.co/user/{user['name']}).\nSuccessfully added you to the database.",
                         view=None,
                     )
 
