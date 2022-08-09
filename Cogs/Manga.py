@@ -50,13 +50,13 @@ class Manga(commands.Cog):
 
         async with self.bot.session.post("https://graphql.anilist.co/", json=params) as resp:
             if not resp.status == 200:
-                await interaction.edit_original_message(content="An error occurred while searching for anime.")
+                await interaction.edit_original_response(content="An error occurred while searching for anime.")
                 return
 
             response = await resp.json()
 
         if not response["data"]["Page"]["media"]:
-            await interaction.edit_original_message(content="No manga found for that search.", view=None)
+            await interaction.edit_original_response(content="No manga found for that search.", view=None)
             return
 
         if len(response["data"]["Page"]["media"]) == 1:
@@ -65,7 +65,7 @@ class Manga(commands.Cog):
                 await self.updateTrending()
             mainEmbedVar = get_media_embed(media=media, trending=(media["id"] in self.trending))
 
-            await interaction.edit_original_message(embed=mainEmbedVar, content=None, view=None)
+            await interaction.edit_original_response(embed=mainEmbedVar, content=None, view=None)
 
         else:
             searchEmbedVar = get_media_list_embed(response["data"]["Page"]["media"], interaction.user)
@@ -73,12 +73,12 @@ class Manga(commands.Cog):
             view.value = None
             for i in range(0, len(response["data"]["Page"]["media"])):
                 view.add_item(NumberedButton(user=interaction.user, index=(i + 1)))
-            await interaction.edit_original_message(embed=searchEmbedVar, view=view)
+            await interaction.edit_original_response(embed=searchEmbedVar, view=view)
             await view.wait()
 
             if view.value is None:
                 searchEmbedVar.color = Colour(int("B20000", 16))
-                await interaction.edit_original_message(embed=searchEmbedVar, view=None)
+                await interaction.edit_original_response(embed=searchEmbedVar, view=None)
                 return
 
             media: dict = response["data"]["Page"]["media"][view.value - 1]
@@ -87,7 +87,7 @@ class Manga(commands.Cog):
                 await self.updateTrending()
 
             mainEmbedVar = get_media_embed(media=media, trending=(media["id"] in self.trending))
-            await interaction.edit_original_message(embed=mainEmbedVar, content=None, view=None)
+            await interaction.edit_original_response(embed=mainEmbedVar, content=None, view=None)
 
     @_manga.autocomplete("tags")
     async def _anime_autocomplete(self, interaction: Interaction, tags: str) -> list[Choice[str]]:

@@ -24,26 +24,26 @@ class Character(commands.Cog):
 
         async with self.bot.session.post("https://graphql.anilist.co/", json=params) as resp:
             if not resp.status == 200:
-                await interaction.edit_original_message(content="An error occurred while searching for anime.")
+                await interaction.edit_original_response(content="An error occurred while searching for anime.")
                 return
 
             response = await resp.json()
 
         if len(response["data"]["Page"]["characters"]) == 0:
-            await interaction.edit_original_message(content="No characters found for that search.")
+            await interaction.edit_original_response(content="No characters found for that search.")
 
         elif len(response["data"]["Page"]["characters"]) == 1:
-            await interaction.edit_original_message(
+            await interaction.edit_original_response(
                 embed=get_character_embed(response["data"]["Page"]["characters"][0], user=interaction.user)
             )
 
         else:
             embeds = [get_character_embed(character, user=interaction.user) for character in response["data"]["Page"]["characters"]]
             view = Pagination(embeds=embeds, user=interaction.user, timeout=60)
-            await interaction.edit_original_message(embed=view.pages[0], view=view)
+            await interaction.edit_original_response(embed=view.pages[0], view=view)
 
             await view.wait()
-            await interaction.edit_original_message(view=view.clear_items())
+            await interaction.edit_original_response(view=view.clear_items())
 
 
 async def setup(bot: commands.Bot):

@@ -236,7 +236,7 @@ query ($name: String, $page: Int, $perPage: Int) {
                         "INSERT INTO discord_anilist (discord, anilist) VALUES (%s, %s)", (interaction.user.id, user["id"])
                     )
 
-                    p = await interaction.edit_original_message(
+                    p = await interaction.edit_original_response(
                         content=f"Successfully registered [{user['name']}](https://anilist.co/user/{user['name']}).\nNow adding you to the database.",
                         view=None,
                     )
@@ -254,7 +254,7 @@ query ($name: String, $page: Int, $perPage: Int) {
                     )
 
                 else:
-                    await interaction.edit_original_message(content="Please try again with your username.", view=None)
+                    await interaction.edit_original_response(content="Please try again with your username.", view=None)
 
     @app_commands.command(name="unset", description="Unlinks your Anilist profile from your Discord profile.")
     async def _unset(self, interaction: Interaction) -> None:
@@ -269,10 +269,10 @@ query ($name: String, $page: Int, $perPage: Int) {
             if not await view.wait():
                 if view.value:
                     await curr.execute(f"DELETE FROM discord_anilist WHERE discord={interaction.user.id}")
-                    await interaction.edit_original_message(content="Successfully unlinked your Anilist account.", view=None)
+                    await interaction.edit_original_response(content="Successfully unlinked your Anilist account.", view=None)
 
                 else:
-                    await interaction.edit_original_message(content="Operation aborted.", view=None)
+                    await interaction.edit_original_response(content="Operation aborted.", view=None)
 
     @app_commands.command(name="update", description="Updates the bot's database.")
     @app_commands.rename(_list="list")
