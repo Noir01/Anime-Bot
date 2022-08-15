@@ -92,7 +92,7 @@ class Anime(commands.Cog):
             await interaction.edit_original_response(embed=mainEmbedVar, content=None, view=None)
 
     @_anime.autocomplete("tags")
-    async def _anime_autocomplete(self, interaction: Interaction, tags: str) -> list[Choice[str]]:
+    async def _tags_autocomplete(self, interaction: Interaction, tags: str) -> list[Choice[str]]:
         return await tag_autocomplete(interaction, tags)
 
 
