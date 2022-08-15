@@ -175,7 +175,7 @@ def get_media_list_embed(mediaList: list[dict[str, str]], user: Union[Member, Us
 
     embedVar.title = "Search results"
 
-    embedVar.description = f"<@{user.id}>, Please click on the respective button to get view it."
+    embedVar.description = f"<@{user.id}>, Please click on the respective button to view it."
 
     embedVar.color = user.color if not str(user.color) == "#000000" else Colour(69420).random()
 
