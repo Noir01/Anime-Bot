@@ -115,7 +115,8 @@ def get_media_embed(media: dict, trending: bool = False) -> Embed:
             )
         )
         embedVar.add_field(
-            name="Start date" if media["format"] != "MOVIE" else "Release date", value=f"<t:{timestamp}:D>\n_(<t:{timestamp}:R>)_"
+            name="Start date" if (media["format"] != "MOVIE" and media["startDate"] != media["endDate"]) else "Release date",
+            value=f"<t:{timestamp}:D>\n_(<t:{timestamp}:R>)_",
         )
 
     if (
@@ -123,6 +124,7 @@ def get_media_embed(media: dict, trending: bool = False) -> Embed:
         and media["endDate"]["month"]
         and media["endDate"]["day"]
         and media["format"] != "MOVIE"  # Don't want to show end date for movies
+        and media["startDate"] != media["endDate"]  # Don't want to show end date if it's the same as start date
     ):
         timestamp = str(
             int(datetime(year=media["endDate"]["year"], month=media["endDate"]["month"], day=media["endDate"]["day"]).timestamp())
