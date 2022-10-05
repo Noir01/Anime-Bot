@@ -41,8 +41,7 @@ class General(commands.Cog):
 
             if not result:
                 return
-            else:
-                return result[0]
+            return result[0]
 
         else:
             await curr.execute(f"SELECT discord from discord_anilist WHERE anilist={userId}")
@@ -50,8 +49,7 @@ class General(commands.Cog):
 
             if not result:
                 return
-            else:
-                return result[0]
+            return result[0]
 
     async def update_(self, _list: str, discordId: int, anilistId: int, pool: psycopg_pool.AsyncConnectionPool, force: bool) -> bool:
         async with pool.connection() as conn, conn.cursor() as curr:
