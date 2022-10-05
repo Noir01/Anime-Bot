@@ -182,7 +182,7 @@ def get_media_list_embed(mediaList: list[dict[str, str]], user: Union[Member, Us
 
     embedVar.description = f"<@{user.id}>, Please click on the respective button to view it."
 
-    embedVar.color = user.color if not str(user.color) == "#000000" else Colour(69420).random()
+    embedVar.color = user.color if str(user.color) != "#000000" else Colour(69420).random()
 
     embedVar.set_footer(
         text="Powered by Anilist API",
@@ -232,7 +232,7 @@ def get_character_embed(character: dict, user: Union[Member, User]) -> Embed:
 
     embedVar.title = character["name"]["full"]
 
-    embedVar.color = user.color if not str(user.color) == "#000000" else Colour(69420).random()
+    embedVar.color = user.color if str(user.color) != "#000000" else Colour(69420).random()
 
     embedVar.url = character["siteUrl"]
 
