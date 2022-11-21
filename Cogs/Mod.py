@@ -173,12 +173,17 @@ class Mod(Cog):
             except:
                 pass
 
-            if ret is None:
-                if value:
-                    await ctx.send(f"```py\n{value}\n```")
-            else:
-                self._last_result = ret
-                await ctx.send(f"```py\n{value}{ret}\n```")
+            try:
+                if ret is None:
+                    if value:
+                        await ctx.send(f"```py\n{value}\n```")
+                else:
+                    self._last_result = ret
+                    await ctx.send(f"```py\n{value}{ret}\n```")
+            except HTTPException:
+                with open("result.txt", "w") as f:
+                    f.write(f"{value}{ret}")
+                remove("result.txt")
 
     @command(hidden=True, name="close", aliases=["shutdown"])
     @is_owner()
