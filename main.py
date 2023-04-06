@@ -30,13 +30,13 @@ class Animebot(Bot):
 
     async def setup_hook(self):
         self.session = ClientSession()
-        self.pool = AsyncConnectionPool(conninfo=environ["DATABASE_URL"])
+        # self.pool = AsyncConnectionPool(conninfo=environ["DATABASE_URL"])
         for ext in self.initial_extensions:
             await self.load_extension(ext)
 
     async def close(self):
         await self.session.close()
-        await self.pool.close()
+        # await self.pool.close()
         await super().close()
 
     async def on_ready(self):
